@@ -1,0 +1,1600 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>GPay Clone</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+      body {
+        font-family: 'Google Sans', sans-serif;
+        background-color: #121212;
+        color: #e8eaed;
+        -webkit-tap-highlight-color: transparent;
+        user-select: none;
+      }
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      
+      @keyframes scrollText {
+        0%, 20% { transform: translateY(0); }
+        33%, 53% { transform: translateY(-25%); }
+        66%, 86% { transform: translateY(-50%); }
+        98%, 100% { transform: translateY(-75%); }
+      }
+      .animate-placeholder {
+        animation: scrollText 9s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+      }
+      .has-text .animate-placeholder-container {
+        opacity: 0;
+      }
+
+      /* Keypad Animations */
+      .key-btn {
+        transition: background-color 0.1s;
+      }
+      .key-btn:active {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+      
+      /* PIN Screen Specifics */
+      .pin-keypad-btn {
+        font-family: 'Google Sans', sans-serif;
+        color: #1a237e; /* Deep Navy Blue */
+        font-size: 28px;
+        font-weight: 400;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background-color 0.2s;
+        /* Removed borders for cleaner look as requested */
+      }
+      .pin-keypad-btn:active {
+        background-color: #e0e0e0;
+      }
+      
+      .pin-dot-container {
+        display: flex;
+        align-items: flex-end;
+        justify-content: center;
+        height: 50px;
+        width: 40px;
+      }
+
+      /* Empty state: Line */
+      .pin-dot-container.empty::after {
+        content: '';
+        width: 100%;
+        height: 2px;
+        background-color: #9ca3af; /* Gray line */
+        margin-bottom: 15px;
+      }
+      
+      /* Filled state: Small Dot */
+      .pin-dot-container.filled::after {
+        content: '';
+        width: 8px;
+        height: 8px;
+        background-color: black;
+        border-radius: 50%;
+        margin-bottom: 20px;
+      }
+
+      /* Slide Up Animation for Payment Sheet */
+      @keyframes slideInUp {
+        from { transform: translateY(100%); }
+        to { transform: translateY(0); }
+      }
+      .animate-slide-up {
+        animation: slideInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+
+      /* Slide Down Animation */
+      @keyframes slideOutDown {
+        from { transform: translateY(0); }
+        to { transform: translateY(100%); }
+      }
+      .animate-slide-down {
+        animation: slideOutDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+      
+      /* Cursor Blink */
+      @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+      .cursor { animation: blink 1s step-end infinite; }
+
+      /* Rewards Pattern */
+      .reward-pattern {
+        background-image: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+        background-size: 10px 10px;
+      }
+
+      /* Spinner */
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+      .spinner {
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-left-color: #fff;
+        border-radius: 50%;
+        width: 16px;
+        height: 16px;
+        animation: spin 1s linear infinite;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3",
+    "lucide-react": "https://esm.sh/lucide-react@^0.561.0"
+  }
+}
+</script>
+</head>
+  <body>
+    <!-- Splash Screen (Restored) -->
+    <div id="splash-screen" class="fixed inset-0 bg-[#121212] z-[100] flex flex-col items-center justify-between py-12 transition-opacity duration-300">
+        <div class="flex-1 flex items-center justify-center">
+            <img src="logo.png" class="w-[150px] h-[150px] object-contain"/>
+        </div>
+        <div class="flex flex-col items-center gap-2">
+             <span class="text-white text-4xl font-normal tracking-wide">Google</span>
+        </div>
+    </div>
+
+    <!-- Main App Container -->
+    <div id="home-screen" class="max-w-md mx-auto min-h-screen bg-[#121212] pb-24 overflow-x-hidden relative shadow-2xl transition-transform duration-300">
+      
+      <!-- Header -->
+      <div class="sticky top-0 z-50 bg-[#222327] pt-4 pb-2 px-5 flex items-center justify-between gap-4 transition-colors duration-300 border-b border-transparent">
+        
+        <!-- Search Bar Container (Trigger) -->
+        <div id="home-search-trigger" class="flex-1 relative group h-12 z-50 cursor-text" onclick="openSearchScreen()">
+          <div class="absolute inset-0 bg-[#303134] rounded-full shadow-[0_2px_5px_rgba(0,0,0,0.4)] pointer-events-none transition-shadow group-hover:shadow-[0_4px_8px_rgba(0,0,0,0.5)]"></div>
+          
+          <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+            <i data-lucide="search" class="h-5 w-5 text-[#9aa0a6]"></i>
+          </div>
+
+          <div id="placeholder-container" class="absolute inset-0 pl-12 pr-4 flex flex-col overflow-hidden pointer-events-none z-0 rounded-full">
+             <div class="flex flex-col animate-placeholder w-full text-[15px] font-normal text-[#9aa0a6]">
+               <div class="h-12 flex items-center flex-shrink-0">Pay friends and merchants</div>
+               <div class="h-12 flex items-center flex-shrink-0">Pay by name or phone number</div>
+               <div class="h-12 flex items-center flex-shrink-0">Pay anyone on UPI</div>
+               <div class="h-12 flex items-center flex-shrink-0">Pay friends and merchants</div>
+             </div>
+          </div>
+        </div>
+
+        <!-- User Profile -->
+        <div class="flex-shrink-0">
+          <div class="h-9 w-9 rounded-full bg-gray-700 overflow-hidden border border-[#5f6360] ">
+               <img src="https://picsum.photos/100/100?random=user" alt="Profile" class="h-full w-full object-cover" />
+          </div>
+        </div>
+      </div>
+      
+      <main class="flex flex-col gap-8">
+
+        <!-- Hero Section with Big Image -->
+        <div class="relative w-full h-58 bg-gray-900 overflow-hidden mb-2">
+            <img src="head.jpg" alt="Hero" class="w-full h-full object-cover opacity-100" />
+        </div>
+        
+        <div class="px-4 flex flex-col gap-6">
+
+        <!-- Quick Actions -->
+          <div class="grid grid-cols-4 gap-y-6 gap-x-2">
+            <div class="flex flex-col items-center gap-2 group cursor-pointer">
+              <div class="w-12 h-12 flex items-center justify-center text-[#8ab4f8] mb-1 transition-transform group-active:scale-95">
+                <i data-lucide="qr-code" class="w-7 h-7" stroke-width="1.5"></i>
+              </div>
+              <span class="text-xs text-center text-gray-300 w-20 leading-tight">Scan any QR code</span>
+            </div>
+            <div class="flex flex-col items-center gap-2 group cursor-pointer">
+              <div class="w-12 h-12 flex items-center justify-center text-[#8ab4f8] mb-1 transition-transform group-active:scale-95">
+                <i data-lucide="users" class="w-7 h-7" stroke-width="1.5"></i>
+              </div>
+              <span class="text-xs text-center text-gray-300 w-20 leading-tight">Pay contacts</span>
+            </div>
+            <div class="flex flex-col items-center gap-2 group cursor-pointer">
+              <div class="w-12 h-12 flex items-center justify-center text-[#8ab4f8] mb-1 transition-transform group-active:scale-95">
+                <i data-lucide="smartphone" class="w-7 h-7" stroke-width="1.5"></i>
+              </div>
+              <span class="text-xs text-center text-gray-300 w-20 leading-tight">Pay phone number</span>
+            </div>
+            <div class="flex flex-col items-center gap-2 group cursor-pointer">
+              <div class="w-12 h-12 flex items-center justify-center text-[#8ab4f8] mb-1 transition-transform group-active:scale-95">
+                <i data-lucide="landmark" class="w-7 h-7" stroke-width="1.5"></i>
+              </div>
+              <span class="text-xs text-center text-gray-300 w-20 leading-tight">Bank transfer</span>
+            </div>
+            <div class="flex flex-col items-center gap-2 group cursor-pointer">
+              <div class="w-12 h-12 flex items-center justify-center text-[#8ab4f8] mb-1 transition-transform group-active:scale-95">
+                <i data-lucide="at-sign" class="w-7 h-7" stroke-width="1.5"></i>
+              </div>
+              <span class="text-xs text-center text-gray-300 w-20 leading-tight">Pay UPI ID or number</span>
+            </div>
+            <div class="flex flex-col items-center gap-2 group cursor-pointer">
+              <div class="w-12 h-12 flex items-center justify-center text-[#8ab4f8] mb-1 transition-transform group-active:scale-95">
+                <i data-lucide="user" class="w-7 h-7" stroke-width="1.5"></i>
+              </div>
+              <span class="text-xs text-center text-gray-300 w-20 leading-tight">Self transfer</span>
+            </div>
+            <div class="flex flex-col items-center gap-2 group cursor-pointer">
+              <div class="w-12 h-12 flex items-center justify-center text-[#8ab4f8] mb-1 transition-transform group-active:scale-95">
+                <i data-lucide="receipt-text" class="w-7 h-7" stroke-width="1.5"></i>
+              </div>
+              <span class="text-xs text-center text-gray-300 w-20 leading-tight">Pay bills</span>
+            </div>
+            <div class="flex flex-col items-center gap-2 group cursor-pointer">
+              <div class="w-12 h-12 flex items-center justify-center text-[#8ab4f8] mb-1 transition-transform group-active:scale-95">
+                <i data-lucide="smartphone-charging" class="w-7 h-7" stroke-width="1.5"></i>
+              </div>
+              <span class="text-xs text-center text-gray-300 w-20 leading-tight">Mobile recharge</span>
+            </div>
+          </div>
+
+          <!-- UPI Actions -->
+          <div class="flex gap-3 justify-center py-2">
+            <button class="flex items-center gap-2 px-3 py-1.5 rounded-full border border-gray-700 bg-[#1f1f1f] text-xs text-gray-300 font-medium">
+              Activate UPI Lite <i data-lucide="plus-circle" class="w-3.5 h-3.5 text-gray-300"></i>
+            </button>
+            <button class="flex items-center px-3 py-1.5 rounded-full border border-gray-700 bg-[#1f1f1f] text-xs text-gray-300 font-medium truncate max-w-[200px]">
+              UPI ID: k.rajesh90033@oksbi
+            </button>
+          </div>
+          
+          <!-- People Section (Dynamic) -->
+          <div>
+            <h2 class="text-xl text-white mb-4">People</h2>
+            <div id="people-grid" class="grid grid-cols-4 gap-y-6 gap-x-2">
+               <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <!-- Business Section -->
+          <div>
+            <div class="flex justify-between items-center mb-4">
+              <h2 class="text-xl text-white">Businesses</h2>
+              <button class="flex items-center text-sm font-medium text-blue-300 bg-[#1f1f1f] px-3 py-1 rounded-full">
+                Explore <i data-lucide="chevron-right" class="w-4 h-4 ml-0.5"></i>
+              </button>
+            </div>
+            
+            <div class="grid grid-cols-4 gap-y-6 gap-x-2">
+              <div class="flex flex-col items-center">
+                <div class="w-14 h-14 rounded-full flex items-center justify-center mb-2 bg-purple-600">
+                  <span class="text-xl text-white font-medium">S</span>
+                </div>
+                <span class="text-xs text-gray-300 text-center truncate w-20">Swiggy Li...</span>
+              </div>
+              <div class="flex flex-col items-center">
+                <div class="w-14 h-14 rounded-full flex items-center justify-center mb-2 bg-green-600">
+                  <span class="text-xl text-white font-medium">T</span>
+                </div>
+                <span class="text-xs text-gray-300 text-center truncate w-20">TAMILNAD...</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bills Section -->
+          <div>
+            <h2 class="text-xl text-white mb-4">Bills & recharges</h2>
+            
+            <div class="space-y-4 mb-6">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center text-xs font-bold text-white">
+                    airtel
+                  </div>
+                  <div>
+                    <div class="text-sm text-white flex items-center gap-1">
+                      Amma <i data-lucide="heart" class="w-3 h-3 text-red-500 fill-red-500"></i>
+                    </div>
+                    <div class="text-xs text-gray-400">Plan expiring in 2 days</div>
+                  </div>
+                </div>
+                <button class="px-4 py-1.5 rounded-full border border-gray-600 text-sm font-medium text-blue-300 bg-transparent hover:bg-gray-800">
+                  Pay
+                </button>
+              </div>
+
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-xs font-bold text-white">
+                    Jio
+                  </div>
+                  <div>
+                    <div class="text-sm text-white flex items-center gap-1">
+                      Pondati <span class="text-green-500">💚</span><span class="text-blue-500">💙</span>
+                    </div>
+                    <div class="inline-block px-1.5 py-0.5 rounded bg-blue-900/50 text-[10px] text-blue-300 mt-0.5">
+                      Suggested
+                    </div>
+                  </div>
+                </div>
+                <button class="px-4 py-1.5 rounded-full border border-gray-600 text-sm font-medium text-blue-300 bg-transparent hover:bg-gray-800">
+                  Unlimited for ₹49
+                </button>
+              </div>
+            </div>
+
+            <!-- Try Adding These -->
+            <div class="mb-4">
+              <h3 class="text-sm text-gray-300 mb-4">Try adding these</h3>
+              <div class="grid grid-cols-4 gap-y-4 gap-x-2">
+                <div class="flex flex-col items-center gap-2">
+                  <div class="w-12 h-12 rounded-full bg-[#004a77] flex items-center justify-center">
+                     <i data-lucide="smartphone" class="w-6 h-6 text-white" stroke-width="1.5"></i>
+                  </div>
+                  <span class="text-xs text-center text-gray-300 w-20 leading-tight">
+                    Mobile recharge
+                  </span>
+                </div>
+                <div class="flex flex-col items-center gap-2">
+                  <div class="w-12 h-12 rounded-full bg-[#004a77] flex items-center justify-center">
+                     <i data-lucide="monitor" class="w-6 h-6 text-white" stroke-width="1.5"></i>
+                  </div>
+                  <span class="text-xs text-center text-gray-300 w-20 leading-tight">
+                    DTH / Cable TV
+                  </span>
+                </div>
+                <div class="flex flex-col items-center gap-2">
+                  <div class="w-12 h-12 rounded-full bg-[#004a77] flex items-center justify-center">
+                     <i data-lucide="lightbulb" class="w-6 h-6 text-white" stroke-width="1.5"></i>
+                  </div>
+                  <span class="text-xs text-center text-gray-300 w-20 leading-tight">
+                    Electricity
+                  </span>
+                </div>
+                <div class="flex flex-col items-center gap-2">
+                  <div class="w-12 h-12 rounded-full bg-[#004a77] flex items-center justify-center">
+                     <i data-lucide="credit-card" class="w-6 h-6 text-white" stroke-width="1.5"></i>
+                  </div>
+                  <span class="text-xs text-center text-gray-300 w-20 leading-tight">
+                    Credit cards
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex justify-center">
+                <button class="px-6 py-2 rounded-full border border-gray-600 text-sm font-medium text-white bg-transparent">
+                  View all
+                </button>
+            </div>
+          </div>
+          
+          <!-- Offers Section -->
+          <div>
+            <h2 class="text-xl text-white mb-4">Offers & rewards</h2>
+            <div class="grid grid-cols-4 gap-2">
+              <div class="flex flex-col items-center gap-2">
+                <div class="w-14 h-14 rounded-full overflow-hidden relative flex items-center justify-center">
+                    <div class="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
+                    <div class="w-full h-full bg-gradient-to-b from-yellow-300 to-orange-500 flex items-center justify-center rounded-full">
+                        <i data-lucide="trophy" class="text-yellow-100 w-8 h-8 drop-shadow-md"></i>
+                    </div>
+                </div>
+                <span class="text-xs font-medium text-gray-200">Rewards</span>
+              </div>
+              <div class="flex flex-col items-center gap-2">
+                <div class="w-14 h-14 rounded-full overflow-hidden relative flex items-center justify-center">
+                    <div class="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
+                    <div class="w-full h-full bg-gradient-to-b from-pink-400 to-red-500 flex items-center justify-center rounded-full">
+                        <i data-lucide="tag" class="text-pink-100 w-8 h-8 drop-shadow-md rotate-90"></i>
+                    </div>
+                </div>
+                <span class="text-xs font-medium text-gray-200">Offers</span>
+              </div>
+              <div class="flex flex-col items-center gap-2">
+                <div class="w-14 h-14 rounded-full overflow-hidden relative flex items-center justify-center">
+                    <div class="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
+                    <div class="w-full h-full bg-gradient-to-b from-blue-300 to-blue-600 flex items-center justify-center rounded-full">
+                        <i data-lucide="users" class="text-blue-100 w-8 h-8 drop-shadow-md"></i>
+                    </div>
+                </div>
+                <span class="text-xs font-medium text-gray-200">Referrals</span>
+              </div>
+              <div class="flex flex-col items-center gap-2">
+                <div class="w-14 h-14 rounded-full overflow-hidden relative flex items-center justify-center">
+                    <div class="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
+                    <div class="w-full h-full bg-gradient-to-b from-purple-400 to-indigo-600 flex items-center justify-center rounded-full">
+                        <i data-lucide="sparkles" class="text-purple-100 w-8 h-8 drop-shadow-md"></i>
+                    </div>
+                </div>
+                <span class="text-xs font-medium text-gray-200">My Squad</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Money Management -->
+          <div>
+            <h2 class="text-xl text-white mb-4">Manage your money</h2>
+            <div class="grid grid-cols-2 gap-3">
+              <!-- Personal Loan -->
+              <div class="bg-[#1f1f1f] p-4 rounded-2xl flex flex-col justify-between h-40 border border-[#3c4043]">
+                <div>
+                  <div class="mb-3 text-blue-300">
+                     <i data-lucide="file-text" class="w-6 h-6"></i>
+                  </div>
+                  <h3 class="text-sm font-medium text-white mb-1">Personal loan</h3>
+                  <p class="text-xs text-gray-400 leading-snug">
+                    Finish applying in 2 minutes
+                  </p>
+                </div>
+                <div class="text-sm text-blue-300 font-medium cursor-pointer">Continue</div>
+              </div>
+
+              <!-- Gold Loan -->
+              <div class="bg-[#1f1f1f] p-4 rounded-2xl flex flex-col justify-between h-40 border border-[#3c4043]">
+                <div>
+                  <div class="mb-3 text-blue-300">
+                     <i data-lucide="coins" class="w-6 h-6"></i>
+                  </div>
+                  <h3 class="text-sm font-medium text-white mb-1">Gold loan</h3>
+                  <p class="text-xs text-gray-400 leading-snug">
+                    Interest rate starting at 0.96% monthly
+                  </p>
+                </div>
+                <div class="text-sm text-blue-300 font-medium cursor-pointer">Apply now</div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Footer Links -->
+          <div class="py-2">
+            <div class="flex items-center justify-between py-4 cursor-pointer active:bg-gray-800 transition-colors">
+              <div class="flex items-center gap-4">
+                <div class="text-blue-300">
+                  <i data-lucide="gauge" class="w-6 h-6" stroke-width="1.5"></i>
+                </div>
+                <span class="text-sm font-medium text-white">Check your CIBIL score for free</span>
+              </div>
+              <i data-lucide="chevron-right" class="w-5 h-5 text-gray-500"></i>
+            </div>
+            <div class="flex items-center justify-between py-4 cursor-pointer active:bg-gray-800 transition-colors">
+              <div class="flex items-center gap-4">
+                <div class="text-blue-300">
+                  <i data-lucide="history" class="w-6 h-6" stroke-width="1.5"></i>
+                </div>
+                <span class="text-sm font-medium text-white">See transaction history</span>
+              </div>
+              <i data-lucide="chevron-right" class="w-5 h-5 text-gray-500"></i>
+            </div>
+            <div class="flex items-center justify-between py-4 cursor-pointer active:bg-gray-800 transition-colors">
+              <div class="flex items-center gap-4">
+                <div class="text-blue-300">
+                  <i data-lucide="landmark" class="w-6 h-6" stroke-width="1.5"></i>
+                </div>
+                <span class="text-sm font-medium text-white">Check bank balance</span>
+              </div>
+              <i data-lucide="chevron-right" class="w-5 h-5 text-gray-500"></i>
+            </div>
+          </div>
+
+        </div>
+        
+        <!-- Invite Footer with Background Image -->
+        <div class="relative mt-1 pb-20 overflow-hidden bg-[#202124]">
+          <!-- Footer Background Image -->
+          <img src="footer.jpg" class="absolute inset-0 w-full h-full object-cover opacity-100 pointer-events-none">
+
+         <div class="relative z-10 pt-10 px-6">
+           <h3 class="text-lg text-white font-medium mb-2">Invite friends to get ₹101</h3>
+           <p class="text-sm text-[#9aa0a6] mb-6 leading-relaxed max-w-[90%]">
+             Invite friends and welcome friends back to earn rewards when they make payments on Google Pay.
+           </p>
+   
+           <div class="flex items-center justify-between mb-8">
+             <div class="text-sm  text-[#9aa0a6] font-medium flex items-center gap-2">
+               Copy your code <span class="text-white font-bold tracking-wide">c420fuk</span> 
+               <i data-lucide="copy" class="text-white w-4 h-4 font-bold tracking-wide"></i>
+             </div>
+           </div>
+   
+           <button class="px-6 py-2 rounded-full border border-[#5f6368] text-sm font-medium text-white hover:bg-gray-700 transition-colors backdrop-blur-sm bg-black/20">
+             Invite
+           </button>
+         </div>
+       </div>
+       
+     </main>
+   </div>
+
+   <!-- Full Screen Search Overlay -->
+    <div id="search-screen-overlay" class="fixed inset-0 bg-[#121212] z-[60] hidden flex-col">
+        <!-- Search Header -->
+        <div class="flex items-center gap-3 px-4 py-3 bg-[#121212]">
+            <button onclick="closeSearchScreen()" class="p-2 -ml-2 rounded-full hover:bg-[#303134]">
+                <i data-lucide="arrow-left" class="w-6 h-6 text-[#e8eaed]"></i>
+            </button>
+            
+            <!-- Enhanced Search Bar -->
+            <div class="flex-1 relative group h-12">
+               <!-- Background -->
+               <div class="absolute inset-0 bg-[#303134] rounded-full"></div>
+               
+               <!-- Icon -->
+               <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none z-10">
+                   <i data-lucide="search" class="h-5 w-5 text-[#9aa0a6]"></i>
+               </div>
+
+               <!-- Animated Placeholder -->
+               <div id="search-overlay-placeholder" class="animate-placeholder-container absolute inset-0 pl-12 pr-4 flex flex-col overflow-hidden pointer-events-none z-10 rounded-full transition-opacity duration-200">
+                  <div class="flex flex-col animate-placeholder w-full text-[15px] font-normal text-[#9aa0a6]">
+                    <div class="h-12 flex items-center flex-shrink-0">Pay friends and merchants</div>
+                    <div class="h-12 flex items-center flex-shrink-0">Pay by name or phone number</div>
+                    <div class="h-12 flex items-center flex-shrink-0">Pay anyone on UPI</div>
+                    <div class="h-12 flex items-center flex-shrink-0">Pay friends and merchants</div>
+                  </div>
+               </div>
+
+               <input id="main-search-input" type="text"
+                      class="block w-full h-12 pl-12 pr-4 rounded-full bg-transparent text-[#e8eaed] caret-[#8ab4f8] focus:outline-none text-[15px] font-normal relative z-20"
+                      autocomplete="off">
+            </div>
+
+            <button class="p-2 -mr-2 rounded-full hover:bg-[#303134]">
+                <i data-lucide="more-vertical" class="w-5 h-5 text-[#e8eaed]"></i>
+            </button>
+        </div>
+
+        <!-- Default Content (Suggestions & Recents) -->
+        <div id="search-default-content" class="flex-1 overflow-y-auto p-4">
+            <h3 class="text-lg text-white font-medium mb-4">Suggested categories</h3>
+            <div class="flex justify-between mb-8 px-2">
+                <div class="flex flex-col items-center gap-2">
+                    <div class="w-12 h-12 rounded-full bg-[#1f7ae0] flex items-center justify-center">
+                        <i data-lucide="smartphone" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <span class="text-xs text-center text-[#e8eaed] w-16 leading-tight">Mobile recharge</span>
+                </div>
+                <div class="flex flex-col items-center gap-2">
+                    <div class="w-12 h-12 rounded-full bg-[#1f7ae0] flex items-center justify-center">
+                        <i data-lucide="monitor" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <span class="text-xs text-center text-[#e8eaed] w-16 leading-tight">DTH / Cable TV</span>
+                </div>
+                <div class="flex flex-col items-center gap-2">
+                    <div class="w-12 h-12 rounded-full bg-[#1f7ae0] flex items-center justify-center">
+                        <i data-lucide="lightbulb" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <span class="text-xs text-center text-[#e8eaed] w-16 leading-tight">Electricity</span>
+                </div>
+                <div class="flex flex-col items-center gap-2">
+                    <div class="w-12 h-12 rounded-full bg-[#1f7ae0] flex items-center justify-center">
+                        <i data-lucide="credit-card" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <span class="text-xs text-center text-[#e8eaed] w-16 leading-tight">Credit cards</span>
+                </div>
+            </div>
+
+            <h3 class="text-lg text-white font-medium mb-3">Recents</h3>
+            <div class="flex flex-col gap-1" id="recents-list">
+                 <!-- Populated by JS -->
+            </div>
+            
+            <h3 class="text-lg text-white font-medium mt-6 mb-3">All people on UPI</h3>
+             <div class="flex flex-col gap-4" id="all-people-list">
+                <!-- Populated by JS -->
+             </div>
+        </div>
+
+        <!-- Filtered Results -->
+        <div id="search-results-content" class="flex-1 hidden overflow-y-auto p-4">
+            <div class="flex flex-col gap-2" id="filtered-list">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Chat / Transaction Screen -->
+    <div id="chat-screen" class="fixed inset-0 bg-[#121212] z-[60] hidden flex-col">
+      <!-- Chat Header -->
+      <div class="flex items-center justify-between px-2 py-3 bg-[#121212] border-b border-[#1f1f1f]">
+        <div class="flex items-center gap-3">
+          <button id="back-btn" class="p-2 rounded-full hover:bg-[#1f1f1f] text-white">
+            <i data-lucide="arrow-left" class="w-6 h-6"></i>
+          </button>
+          <div id="chat-header-avatar" class="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center">
+            <!-- Img or text injected here -->
+          </div>
+          <div class="flex flex-col">
+            <span id="chat-user-name" class="text-white font-medium text-[15px] leading-tight"></span>
+            <span id="chat-user-phone" class="text-[#9aa0a6] text-xs"></span>
+          </div>
+        </div>
+        <div class="flex items-center gap-4 pr-2">
+          <i data-lucide="phone" class="w-5 h-5 text-[#e8eaed]"></i>
+          <i data-lucide="more-vertical" class="w-5 h-5 text-[#e8eaed]"></i>
+        </div>
+      </div>
+
+      <!-- Chat Content (Scrollable) -->
+      <div class="flex-1 overflow-y-auto px-4 py-4 flex flex-col items-center" id="chat-content">
+        <!-- Profile Banner (Shown if no transactions) -->
+        <div id="profile-view" class="w-full flex flex-col items-center mt-8">
+           <div id="profile-avatar-lg" class="w-24 h-24 rounded-full flex items-center justify-center text-4xl text-white mb-4"></div>
+           <h2 id="profile-name-lg" class="text-2xl text-white font-normal mb-1"></h2>
+           
+           <div class="flex items-center gap-1.5 mb-2">
+              <i data-lucide="shield-check" class="w-4 h-4 text-white fill-white/20"></i>
+              <span id="profile-banking-name" class="text-[13px] text-[#e8eaed] font-medium"></span>
+           </div>
+           
+           <div id="profile-phone-lg" class="text-[#9aa0a6] text-[13px] mb-1"></div>
+           <div id="profile-join-date" class="text-[#9aa0a6] text-[13px] mb-8"></div>
+           
+           <button onclick="sayHello()" class="bg-[#1f1f1f] border border-[#5f6368] rounded-full px-4 py-1.5 text-sm text-[#8ab4f8] font-medium flex items-center gap-2 active:bg-[#303134]">
+             Say "Hello!" <span class="text-lg">👋</span>
+           </button>
+        </div>
+
+        <!-- Transaction List -->
+        <div id="transaction-list" class="w-full flex flex-col gap-6 mt-4 pb-4">
+           <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Bottom Action Bar -->
+      <div class="p-3 pb-5 bg-[#121212] flex items-center gap-3 border-t border-[#1f1f1f]">
+         <button onclick="startPayment()" class="bg-[#8ab4f8] text-[#1f1f1f] px-8 py-2.5 rounded-full text-sm font-medium shadow-md active:bg-[#aecbfa] transition-colors">
+           Pay
+         </button>
+         <button class="bg-[#1e222d] text-[#8ab4f8] border border-[#2d313a] px-6 py-2.5 rounded-full text-sm font-medium active:bg-[#2d313a]">
+           Request
+         </button>
+         <div class="flex-1 bg-[#1f1f1f] rounded-full flex items-center px-4 h-11 border border-[#5f6368]">
+            <input id="message-input" type="text" placeholder="Message..." class="bg-transparent text-white text-sm w-full focus:outline-none placeholder-gray-400">
+            <button onclick="sendMessage()" class="p-1">
+               <i data-lucide="send-horizontal" class="w-5 h-5 text-[#8ab4f8] ml-2"></i>
+            </button>
+         </div>
+      </div>
+    </div>
+
+    <!-- Amount Entry Screen (Dark Mode) -->
+    <div id="amount-screen" class="fixed inset-0 bg-[#121212] z-[70] hidden flex-col transition-transform duration-300 transform translate-y-full">
+        <!-- Close Button -->
+        <div class="p-4 flex justify-between items-center">
+            <button onclick="closeAmountScreen()" class="p-2">
+                <i data-lucide="x" class="w-6 h-6 text-white"></i>
+            </button>
+            <i data-lucide="more-vertical" class="w-5 h-5 text-white"></i>
+        </div>
+
+        <!-- Amount Display -->
+        <div class="flex-1 flex flex-col items-center pt-8">
+            <!-- Profile Info in Amount Screen -->
+            <div class="flex flex-col items-center gap-1 mb-10">
+                 <div id="amount-screen-avatar" class="w-16 h-16 rounded-full flex items-center justify-center text-3xl text-white font-medium mb-3"></div>
+                 <div class="text-white text-lg font-medium">Paying <span id="amount-screen-name"></span></div>
+                 <div class="flex items-center gap-1">
+                     <i data-lucide="shield-check" class="w-3 h-3 text-white fill-white/20"></i>
+                     <span class="text-white/80 text-xs font-medium">Banking name: <span id="amount-screen-bank-name"></span></span>
+                 </div>
+                 <span id="amount-screen-phone" class="text-[#9aa0a6] text-xs"></span>
+            </div>
+            
+            <div class="flex items-center justify-center relative mb-4">
+                <span class="text-white text-4xl font-medium mr-2">₹</span>
+                <span id="amount-display" class="text-white text-6xl font-medium">0</span>
+                <div class="cursor w-0.5 h-12 bg-[#8ab4f8] ml-1"></div>
+            </div>
+
+            <div class="w-full flex justify-center mb-auto">
+                 <input type="text" id="amount-note-input" class="bg-[#1f1f1f] text-white text-center rounded-lg px-4 py-2 outline-none placeholder-gray-400 w-48 text-sm" placeholder="Add note" />
+            </div>
+            
+            <!-- Paying... Pill (REMOVED) -->
+            <!-- Direct logic in script now -->
+
+            <!-- Bottom Sheet / Pay Button Area -->
+            <!-- Updated to appear lower (flush bottom) -->
+            <div id="pay-button-container" class="absolute bottom-0 left-0 w-full hidden animate-slide-up">
+                 <div class="bg-[#202124] rounded-t-3xl p-6 w-full text-white shadow-2xl">
+                    <h3 class="text-lg font-medium mb-6">Choose account to pay with</h3>
+                    
+                    <div class="flex items-start justify-between mb-8 cursor-pointer">
+                        <div class="flex gap-4">
+                           <div class="w-12 h-8 bg-white rounded flex items-center justify-center p-1">
+                               <img src="https://companieslogo.com/img/orig/UNIONBANK.NS-5bba728d.png?t=1720244494" class="w-full h-full object-contain">
+                           </div>
+                           <div>
+                               <div class="font-medium text-[15px] text-white">Union Bank of India ••••1420</div>
+                               <div class="text-[#8ab4f8] text-sm font-medium">Balance: Check now</div>
+                           </div>
+                        </div>
+                        <i data-lucide="chevron-down" class="text-gray-400 w-5 h-5"></i>
+                    </div>
+
+                    <button onclick="startProcessingPayment()" class="w-full bg-[#a8c7fa] text-[#062e6f] font-medium text-lg py-3 rounded-full mb-6 active:scale-95 transition-transform">
+                        Pay ₹<span id="pay-btn-amount">0</span>
+                    </button>
+                    
+                    <div class="flex justify-center items-center gap-3 opacity-70">
+                        <span class="text-[10px] text-gray-400 font-medium">POWERED BY</span>
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/ICICI_Bank_Logo.svg/2560px-ICICI_Bank_Logo.svg.png" class="h-3 filter grayscale brightness-200">
+                        <div class="h-3 w-[1px] bg-gray-600"></div>
+                         <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/UPI-Logo-vector.svg/1200px-UPI-Logo-vector.svg.png" class="h-3 filter grayscale brightness-200">
+                    </div>
+                 </div>
+            </div>
+        </div>
+
+        <!-- Custom Keypad with Tick Button (Reorganized) -->
+        <div id="amount-keypad" class="bg-[#121212] pb-4 relative">
+             <div class="grid grid-cols-3 gap-y-2 px-2 pb-2">
+                 <button class="key-btn h-14 text-2xl text-white font-normal rounded-full flex items-center justify-center" onclick="handleAmountKey('1')">1</button>
+                 <button class="key-btn h-14 text-2xl text-white font-normal rounded-full flex items-center justify-center" onclick="handleAmountKey('2')">2</button>
+                 <button class="key-btn h-14 text-2xl text-white font-normal rounded-full flex items-center justify-center" onclick="handleAmountKey('3')">3</button>
+                 <button class="key-btn h-14 text-2xl text-white font-normal rounded-full flex items-center justify-center" onclick="handleAmountKey('4')">4</button>
+                 <button class="key-btn h-14 text-2xl text-white font-normal rounded-full flex items-center justify-center" onclick="handleAmountKey('5')">5</button>
+                 <button class="key-btn h-14 text-2xl text-white font-normal rounded-full flex items-center justify-center" onclick="handleAmountKey('6')">6</button>
+                 <button class="key-btn h-14 text-2xl text-white font-normal rounded-full flex items-center justify-center" onclick="handleAmountKey('7')">7</button>
+                 <button class="key-btn h-14 text-2xl text-white font-normal rounded-full flex items-center justify-center" onclick="handleAmountKey('8')">8</button>
+                 <button class="key-btn h-14 text-2xl text-white font-normal rounded-full flex items-center justify-center" onclick="handleAmountKey('9')">9</button>
+                 <!-- Row 4: Backspace (Left), 0 (Center), Empty (Right) -->
+                 <button class="key-btn h-14 text-white flex items-center justify-center rounded-full" onclick="handleAmountKey('backspace')">
+                     <i data-lucide="delete" class="w-6 h-6"></i>
+                 </button>
+                 <button class="key-btn h-14 text-2xl text-white font-normal rounded-full flex items-center justify-center" onclick="handleAmountKey('0')">0</button>
+                 <div class="h-14"></div> <!-- Empty space -->
+             </div>
+             <!-- Next / Tick Button (Always Visible) -->
+             <button id="amount-next-btn" onclick="showPaymentSheet()" class="absolute bottom-6 right-6 bg-[#8ab4f8] w-14 h-14 rounded-xl flex items-center justify-center shadow-lg active:scale-95 transition-transform z-10">
+                 <i data-lucide="check" class="w-8 h-8 text-[#121212]"></i>
+             </button>
+        </div>
+    </div>
+
+    <!-- PIN Screen Overlay (White Mode) -->
+    <div id="pin-screen" class="fixed inset-0 bg-[#f8f9fa] z-[80] hidden flex-col">
+        <!-- Top Header -->
+        <div class="flex justify-between items-start px-4 py-4 bg-[#f8f9fa] border-b border-gray-300">
+             <div class="flex flex-col">
+                 <span class="text-[#000000] font-bold text-[16px]">Union Bank of India</span>
+                 <span class="text-gray-600 text-sm tracking-widest mt-0.5">XXXX7574</span>
+             </div>
+             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/UPI-Logo-vector.svg/1200px-UPI-Logo-vector.svg.png" class="h-5 object-contain mt-1">
+        </div>
+        
+        <!-- Transaction Info Bar -->
+        <div class="bg-[#e5e7eb] h-12 px-4 flex justify-between items-center">
+             <div class="flex gap-2 items-center w-1/2 overflow-hidden">
+                 <span class="text-[#5f6368] text-xs">To:</span>
+                 <span id="pin-screen-bank-name" class="text-black font-normal text-sm truncate"></span>
+             </div>
+             <div class="flex gap-2 items-center justify-end w-1/2">
+                 <span class="text-[#5f6368] text-xs">Sending:</span>
+                 <div class="flex items-center gap-1">
+                    <span class="text-black font-medium text-sm">₹ <span id="pin-screen-amount"></span></span>
+                    <i data-lucide="chevron-down" class="w-3 h-3 text-[#5f6368]"></i>
+                 </div>
+             </div>
+        </div>
+
+        <!-- Main PIN Area -->
+        <div class="flex-1 flex flex-col items-center pt-10 bg-[#f8f9fa]">
+            <h3 class="text-[#202124] text-xs font-medium mb-12 tracking-wider">ENTER 4-DIGIT UPI PIN</h3>
+            
+            <!-- 4 Slots for PIN -->
+            <div class="flex gap-8 mb-16">
+                <!-- Javascript will toggle classes 'empty' (line) and 'filled' (dot) -->
+                <div class="pin-dot-container empty" id="pin-slot-0"></div>
+                <div class="pin-dot-container empty" id="pin-slot-1"></div>
+                <div class="pin-dot-container empty" id="pin-slot-2"></div>
+                <div class="pin-dot-container empty" id="pin-slot-3"></div>
+            </div>
+            
+            <!-- Warning Banner -->
+            <div class="bg-[#fef7e0] px-4 py-3 rounded-lg w-[90%] flex items-start gap-3 border border-orange-100">
+                 <div class="w-5 h-5 bg-[#f09d00] rounded-full text-white flex items-center justify-center text-xs font-bold mt-0.5 flex-shrink-0">!</div>
+                 <p class="text-xs text-[#5f6368] leading-snug">
+                    You are transferring money from your account to <span id="pin-warning-name" class="font-medium"></span>
+                 </p>
+            </div>
+        </div>
+
+        <!-- PIN Keypad (Custom) -->
+        <div class="bg-[#f2f2f2]">
+            <div class="grid grid-cols-3">
+                <!-- No borders for buttons -->
+                <button class="pin-keypad-btn py-5" onclick="handlePinKey('1')">1</button>
+                <button class="pin-keypad-btn py-5" onclick="handlePinKey('2')">2</button>
+                <button class="pin-keypad-btn py-5" onclick="handlePinKey('3')">3</button>
+                
+                <button class="pin-keypad-btn py-5" onclick="handlePinKey('4')">4</button>
+                <button class="pin-keypad-btn py-5" onclick="handlePinKey('5')">5</button>
+                <button class="pin-keypad-btn py-5" onclick="handlePinKey('6')">6</button>
+                
+                <button class="pin-keypad-btn py-5" onclick="handlePinKey('7')">7</button>
+                <button class="pin-keypad-btn py-5" onclick="handlePinKey('8')">8</button>
+                <button class="pin-keypad-btn py-5" onclick="handlePinKey('9')">9</button>
+                
+                <!-- Backspace (Left) -->
+                <button class="pin-keypad-btn py-5 flex items-center justify-center" onclick="handlePinKey('backspace')">
+                   <div class="bg-[#1a237e] text-white w-10 h-8 rounded flex items-center justify-center relative shadow-sm" style="clip-path: polygon(25% 0%, 100% 0%, 100% 100%, 25% 100%, 0% 50%); margin-left: 5px;">
+                     <span class="text-sm font-bold relative left-1">✕</span>
+                   </div>
+                </button>
+                
+                <button class="pin-keypad-btn py-5" onclick="handlePinKey('0')">0</button>
+                
+                <!-- Submit (Right) -->
+                <button class="pin-keypad-btn py-5 flex items-center justify-center" onclick="submitPin()">
+                    <div class="w-12 h-12 bg-[#1a237e] rounded-full flex items-center justify-center shadow-md">
+                        <i data-lucide="check" class="text-white w-6 h-6 stroke-[3]"></i>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Success Animation Screen (Clean Video Only) -->
+    <div id="success-screen" class="fixed inset-0 bg-black z-[90] hidden">
+         <video id="success-video" class="absolute inset-0 w-full h-full object-cover" playsinline>
+             <source src="success_tick.mp4" type="video/mp4">
+         </video>
+    </div>
+    
+    <!-- Rewards Screen -->
+    <div id="rewards-screen" class="fixed inset-0 bg-[#121212] z-[95] hidden flex-col">
+        <!-- Rewards Header -->
+        <div class="flex items-center gap-4 px-4 py-4 sticky top-0 bg-[#121212] z-10">
+            <button onclick="closeRewardsScreen()">
+                <i data-lucide="arrow-left" class="w-6 h-6 text-white"></i>
+            </button>
+            <h1 class="text-xl text-white font-normal">₹103 total rewards</h1>
+        </div>
+        
+        <!-- Rewards Hero Image -->
+        <div class="w-full h-32 bg-[#202124] relative overflow-hidden">
+             <!-- Simplified scenic vector illustration -->
+             <div class="absolute bottom-0 w-full h-16 bg-[#1f1f1f]"></div>
+             <div class="absolute bottom-0 left-0 w-full h-full flex items-end justify-center opacity-60">
+                <svg viewBox="0 0 100 20" class="w-full h-auto text-green-700 fill-current">
+                    <path d="M0,20 C30,5 70,5 100,20 Z" />
+                </svg>
+             </div>
+             <!-- Adding some abstract floating gifts -->
+             <div class="absolute top-4 right-10 w-8 h-8 bg-yellow-500 rotate-12 rounded"></div>
+             <div class="absolute top-8 right-20 w-6 h-6 bg-blue-500 -rotate-12 rounded"></div>
+        </div>
+        
+        <!-- Rewards Grid -->
+        <div class="flex-1 overflow-y-auto p-4">
+            <h2 class="text-xl text-white font-normal mb-4">Your rewards</h2>
+            <div class="grid grid-cols-2 gap-3" id="rewards-grid">
+                 <!-- Generated by JS -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+      lucide.createIcons();
+      
+      // Splash Screen Logic
+      window.addEventListener('load', () => {
+          setTimeout(() => {
+              const splash = document.getElementById('splash-screen');
+              splash.classList.add('opacity-100', 'pointer-events-none');
+              setTimeout(() => {
+                  splash.style.display = 'none';
+              }, 300);
+          }, 500);
+      });
+
+      // State
+      let currentAmount = '0';
+      let currentPin = '';
+      let currentUser = null;
+      let users = {
+          'saravanan': { 
+             id: 'saravanan',
+             name: 'Saravanan M', 
+             phone: '+91 96591 51743', 
+             bankName: 'Mrs JAYANTHI SARAVANAN S', 
+             initial: 'S',
+             color: 'bg-[#00b0ff]',
+             joined: 'Joined June 2025'
+          },
+          'jude': { 
+             id: 'jude',
+             name: 'Jude Gnanaseelan', 
+             phone: '+91 98657 16550', 
+             bankName: 'JUDE GNANA SEELAN M', 
+             initial: 'J',
+             color: 'bg-[#783740]',
+             joined: 'Joined August 2018'
+          },
+          'ruban': { 
+             id: 'ruban',
+             name: 'Ruban Gii', 
+             phone: '+91 90804 51080', 
+             bankName: 'RUBAN GII', 
+             img: 'https://picsum.photos/60/60?random=2',
+             joined: 'Joined January 2020'
+          },
+          'manickam': { 
+             id: 'manickam',
+             name: 'Manickam', 
+             phone: '+91 88776 65544', 
+             bankName: 'MANICKAM S', 
+             initial: 'M',
+             color: 'bg-purple-600',
+             joined: 'Joined March 2021'
+          },
+          'syed': { 
+             id: 'syed',
+             name: 'Syed', 
+             phone: '+91 77665 54433', 
+             bankName: 'SYED ALI', 
+             img: 'https://picsum.photos/60/60?random=1',
+             joined: 'Joined May 2022'
+          },
+          'siva': { 
+             id: 'siva',
+             name: 'Siva', 
+             phone: '+91 99887 76655', 
+             bankName: 'SIVA KUMAR', 
+             img: 'https://picsum.photos/60/60?random=3',
+             joined: 'Joined Dec 2023'
+          },
+          'kumar': {
+             id: 'kumar',
+             name: 'KUMAR A',
+             phone: '+91 88990 01122',
+             bankName: 'KUMAR A',
+             initial: 'K',
+             color: 'bg-purple-600',
+             joined: 'Joined Nov 2023'
+          },
+          'kannika': {
+             id: 'kannika',
+             name: 'KANNIKA K',
+             phone: '+91 77889 90011',
+             bankName: 'KANNIKA K',
+             initial: 'K',
+             color: 'bg-orange-600',
+             joined: 'Joined Jan 2024'
+          },
+          'john': {
+             id: 'john',
+             name: 'Johnrai Rani',
+             phone: '+91 66778 89900',
+             bankName: 'JOHNRAI RANI',
+             initial: 'J',
+             color: 'bg-pink-600',
+             joined: 'Joined Feb 2024'
+          },
+          'david': {
+             id: 'david',
+             name: 'David Raj',
+             phone: '+91 55667 78899',
+             bankName: 'DAVID RAJ',
+             initial: 'D',
+             color: 'bg-green-600',
+             joined: 'Joined Mar 2024'
+          },
+          'anitha': {
+             id: 'anitha',
+             name: 'Anitha',
+             phone: '+91 44556 67788',
+             bankName: 'ANITHA S',
+             initial: 'A',
+             color: 'bg-teal-600',
+             joined: 'Joined Apr 2024'
+          },
+          'karthik': {
+             id: 'karthik',
+             name: 'Karthik',
+             phone: '+91 33445 56677',
+             bankName: 'KARTHIK M',
+             initial: 'K',
+             color: 'bg-indigo-600',
+             joined: 'Joined May 2024'
+          }
+      };
+
+      // Recents Mock Data (using keys from users)
+      const recents = ['saravanan', 'jude', 'ruban', 'syed'];
+
+      // Function to Render People Grid with "More" logic
+      function renderPeople(showAll = false) {
+          const grid = document.getElementById('people-grid');
+          grid.innerHTML = '';
+          const userKeys = Object.keys(users);
+          const limit = 7; // Show 7 + More button initially
+
+          const keysToRender = showAll ? userKeys : userKeys.slice(0, limit);
+
+          keysToRender.forEach(key => {
+              const user = users[key];
+              const div = document.createElement('div');
+              div.className = "flex flex-col items-center cursor-pointer";
+              div.onclick = () => openChat(user.id);
+              
+              let avatarHtml = '';
+              if(user.img) {
+                  avatarHtml = `
+                    <div class="w-14 h-14 rounded-full flex items-center justify-center overflow-hidden mb-2 bg-gray-800">
+                      <img src="${user.img}" class="w-full h-full object-cover" />
+                    </div>
+                  `;
+              } else {
+                  avatarHtml = `
+                    <div class="w-14 h-14 rounded-full flex items-center justify-center overflow-hidden mb-2 ${user.color || 'bg-blue-600'}">
+                      <span class="text-xl text-white font-medium">${user.initial || user.name[0]}</span>
+                    </div>
+                  `;
+              }
+
+              div.innerHTML = `
+                ${avatarHtml}
+                <span class="text-xs text-gray-300 text-center truncate w-20">${user.name}</span>
+              `;
+              grid.appendChild(div);
+          });
+
+          // Add "More" or "Less" button
+          if (!showAll && userKeys.length > limit) {
+              const moreDiv = document.createElement('div');
+              moreDiv.className = "flex flex-col items-center cursor-pointer";
+              moreDiv.onclick = () => renderPeople(true);
+              moreDiv.innerHTML = `
+                <div class="w-14 h-14 rounded-full border border-gray-600 flex items-center justify-center bg-[#1f1f1f] mb-2">
+                  <i data-lucide="chevron-down" class="w-6 h-6 text-blue-300"></i>
+                </div>
+                <span class="text-xs text-gray-300">More</span>
+              `;
+              grid.appendChild(moreDiv);
+          } else if (showAll) {
+               // Optional: Add "Less" button if you want to collapse back
+               const lessDiv = document.createElement('div');
+              lessDiv.className = "flex flex-col items-center cursor-pointer";
+              lessDiv.onclick = () => renderPeople(false);
+              lessDiv.innerHTML = `
+                <div class="w-14 h-14 rounded-full border border-gray-600 flex items-center justify-center bg-[#1f1f1f] mb-2">
+                  <i data-lucide="chevron-up" class="w-6 h-6 text-blue-300"></i>
+                </div>
+                <span class="text-xs text-gray-300">Less</span>
+              `;
+              grid.appendChild(lessDiv);
+          }
+          lucide.createIcons();
+      }
+
+      // Initialize People Grid
+      renderPeople();
+
+
+      // Search Screen Logic
+      const searchScreen = document.getElementById('search-screen-overlay');
+      const mainSearchInput = document.getElementById('main-search-input');
+      const searchOverlayPlaceholder = document.getElementById('search-overlay-placeholder');
+      const defaultContent = document.getElementById('search-default-content');
+      const resultsContent = document.getElementById('search-results-content');
+      const recentsList = document.getElementById('recents-list');
+      const allPeopleList = document.getElementById('all-people-list');
+      const filteredList = document.getElementById('filtered-list');
+
+      window.openSearchScreen = function() {
+          searchScreen.classList.remove('hidden');
+          searchScreen.classList.add('flex');
+          mainSearchInput.focus();
+          mainSearchInput.value = '';
+          searchOverlayPlaceholder.classList.remove('opacity-0'); // Show placeholder
+          renderDefaultSearchContent();
+          toggleSearchContent(false); // Show default
+      }
+
+      window.closeSearchScreen = function() {
+          searchScreen.classList.add('hidden');
+          searchScreen.classList.remove('flex');
+      }
+
+      // Render Default Lists
+      function renderDefaultSearchContent() {
+          // Render Recents
+          recentsList.innerHTML = '';
+          recents.forEach(userId => {
+              const user = users[userId];
+              if(!user) return;
+              recentsList.innerHTML += createUserListItem(user);
+          });
+
+          // Render All People (Just iterating all users for demo)
+          allPeopleList.innerHTML = '';
+          Object.values(users).forEach(user => {
+               allPeopleList.innerHTML += createUserListItem(user);
+          });
+          lucide.createIcons();
+      }
+
+      function createUserListItem(user) {
+          let avatarHtml = '';
+          if(user.img) {
+              avatarHtml = `<img src="${user.img}" class="w-full h-full object-cover">`;
+          } else {
+              avatarHtml = `<div class="w-full h-full flex items-center justify-center text-white font-medium ${user.color || 'bg-blue-600'}">${user.initial || user.name[0]}</div>`;
+          }
+
+          return `
+            <div class="flex items-center gap-4 py-3 cursor-pointer hover:bg-[#1f1f1f] rounded-lg px-2 -mx-2" onclick="openChat('${user.id}')">
+                <div class="w-10 h-10 rounded-full overflow-hidden">
+                    ${avatarHtml}
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-[#e8eaed] text-[15px] font-medium">${user.name}</span>
+                    <span class="text-[#9aa0a6] text-xs">${user.phone}</span>
+                </div>
+            </div>
+          `;
+      }
+
+      // Search Filtering
+      mainSearchInput.addEventListener('input', (e) => {
+          const val = e.target.value.toLowerCase();
+          
+          // Toggle animated placeholder visibility
+          if (val.length > 0) {
+              searchOverlayPlaceholder.classList.add('opacity-0');
+          } else {
+              searchOverlayPlaceholder.classList.remove('opacity-0');
+          }
+
+          if(val.length > 0) {
+              toggleSearchContent(true); // Show results
+              
+              const matches = Object.values(users).filter(user => 
+                  user.name.toLowerCase().includes(val) || 
+                  user.phone.replace(/\s/g, '').includes(val)
+              );
+
+              filteredList.innerHTML = '';
+              if(matches.length > 0) {
+                  matches.forEach(user => {
+                      filteredList.innerHTML += createUserListItem(user);
+                  });
+              } else {
+                  filteredList.innerHTML = `<div class="text-[#9aa0a6] text-center mt-4">No results found</div>`;
+              }
+              lucide.createIcons();
+          } else {
+              toggleSearchContent(false); // Show default
+          }
+      });
+
+      function toggleSearchContent(showResults) {
+          if(showResults) {
+              defaultContent.classList.add('hidden');
+              resultsContent.classList.remove('hidden');
+          } else {
+              defaultContent.classList.remove('hidden');
+              resultsContent.classList.add('hidden');
+          }
+      }
+
+      // Load Transactions from LocalStorage
+      function getTransactions(userId) {
+          const stored = localStorage.getItem(`gpay_tx_${userId}`);
+          return stored ? JSON.parse(stored) : [];
+      }
+
+      function saveTransaction(userId, tx) {
+          const txs = getTransactions(userId);
+          txs.push(tx);
+          localStorage.setItem(`gpay_tx_${userId}`, JSON.stringify(txs));
+      }
+
+      // DOM Elements
+      const homeScreen = document.getElementById('home-screen');
+      const chatScreen = document.getElementById('chat-screen');
+      const amountScreen = document.getElementById('amount-screen');
+      const pinScreen = document.getElementById('pin-screen');
+      const successScreen = document.getElementById('success-screen');
+      const rewardsScreen = document.getElementById('rewards-screen');
+      
+      // Open Chat Logic (Modified to close search screen if open)
+      window.openChat = function(userId) {
+          currentUser = users[userId] || users['jude']; // Fallback
+
+          // Close search if open
+          closeSearchScreen();
+
+          // Set Header
+          document.getElementById('chat-user-name').textContent = currentUser.name;
+          document.getElementById('chat-user-phone').textContent = currentUser.phone;
+          
+          const avatarContainer = document.getElementById('chat-header-avatar');
+          if(currentUser.img) {
+              avatarContainer.innerHTML = `<img src="${currentUser.img}" class="w-full h-full object-cover">`;
+          } else {
+              avatarContainer.className = `w-10 h-10 rounded-full flex items-center justify-center text-white font-medium ${currentUser.color || 'bg-blue-600'}`;
+              avatarContainer.innerHTML = currentUser.initial || currentUser.name[0];
+          }
+
+          // Populate Profile View (if empty)
+          document.getElementById('profile-name-lg').textContent = currentUser.name;
+          document.getElementById('profile-banking-name').textContent = `Banking name: ${currentUser.bankName}`;
+          document.getElementById('profile-phone-lg').textContent = currentUser.phone;
+          document.getElementById('profile-join-date').textContent = currentUser.joined;
+          
+          const lgAvatar = document.getElementById('profile-avatar-lg');
+          if(currentUser.img) {
+              lgAvatar.innerHTML = `<img src="${currentUser.img}" class="w-full h-full object-cover rounded-full">`;
+              lgAvatar.className = "w-24 h-24 rounded-full mb-4";
+          } else {
+              lgAvatar.className = `w-24 h-24 rounded-full flex items-center justify-center text-4xl text-white mb-4 ${currentUser.color || 'bg-blue-600'}`;
+              lgAvatar.textContent = currentUser.initial || currentUser.name[0];
+          }
+
+          renderChatHistory();
+
+          homeScreen.style.display = 'none';
+          chatScreen.classList.remove('hidden');
+          chatScreen.classList.add('flex');
+          lucide.createIcons();
+      }
+      
+      // Say Hello Logic for New Contacts
+      window.sayHello = function() {
+          if(!currentUser) return;
+          
+          saveTransaction(currentUser.id, {
+              type: 'message',
+              content: "Hello! 👋",
+              date: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+          });
+          
+          renderChatHistory();
+      }
+
+      function renderChatHistory() {
+          const list = document.getElementById('transaction-list');
+          const profileView = document.getElementById('profile-view');
+          const txs = getTransactions(currentUser.id);
+          
+          list.innerHTML = '';
+          
+          if(txs.length === 0) {
+              profileView.classList.remove('hidden');
+              list.classList.add('hidden');
+          } else {
+              profileView.classList.add('hidden');
+              list.classList.remove('hidden');
+              
+              let debitCount = 0;
+
+              txs.forEach((tx, index) => {
+                  const el = document.createElement('div');
+                  el.className = "self-end max-w-[85%]";
+                  
+                  if(tx.type === 'payment') {
+                      debitCount++;
+                      el.innerHTML = `
+                         <div class="bg-[#303134] rounded-2xl p-4 mb-1">
+                             <p class="text-white text-sm font-medium mb-1">Payment to ${currentUser.name.split(' ')[0]}</p>
+                             <div class="text-3xl text-white font-normal mb-2">₹${tx.amount}</div>
+                             <div class="flex items-center gap-1.5">
+                                 <div class="bg-green-500 rounded-full p-0.5"><i data-lucide="check" class="w-3 h-3 text-black stroke-[3]"></i></div>
+                                 <span class="text-xs text-white">Paid • ${tx.date}</span>
+                                 <i data-lucide="chevron-right" class="w-4 h-4 text-gray-500 ml-auto"></i>
+                             </div>
+                         </div>
+                      `;
+                      list.appendChild(el);
+
+                      // Scratch Card Logic: After every 2 payments
+                      if(debitCount % 2 === 0) {
+                          const scratchEl = document.createElement('div');
+                          scratchEl.className = "self-end max-w-[85%] cursor-pointer";
+                          scratchEl.onclick = openRewardsScreen;
+                          scratchEl.innerHTML = `
+                            <div class="bg-[#303134] rounded-2xl p-4 relative overflow-hidden mb-1">
+                                <h3 class="text-white text-sm font-medium mb-3">You earned a scratch card!</h3>
+                                <div class="h-28 bg-[#303134] rounded-xl relative overflow-hidden flex items-center justify-center border border-[#5f6368]">
+                                     <!-- Inner Blue Card -->
+                                    <div class="w-4/5 h-4/5 bg-[#4285f4] rounded-lg relative overflow-hidden flex items-center justify-center transform rotate-[-5deg] shadow-lg">
+                                       <div class="absolute inset-0 opacity-20 reward-pattern"></div>
+                                       <div class="w-8 h-8 rounded-full bg-blue-300 opacity-50 absolute top-2 right-2"></div>
+                                       <div class="w-12 h-12 rounded-full bg-blue-600 opacity-20 absolute bottom-[-10px] left-[-10px]"></div>
+                                       <i data-lucide="gift" class="text-blue-100 w-10 h-10 relative z-10"></i>
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between mt-3 pt-2 border-t border-[#5f6368]/50">
+                                <span class="text-xs text-white font-medium">Tap to view</span>
+                                <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
+                                </div>
+                            </div>
+                          `;
+                          list.appendChild(scratchEl);
+                      }
+
+                  } else if (tx.type === 'message') {
+                      el.innerHTML = `
+                         <div class="bg-[#303134] rounded-2xl px-4 py-2 mb-1 text-white text-sm">
+                            ${tx.content}
+                         </div>
+                         <div class="text-[10px] text-gray-400 text-right pr-2">${tx.date}</div>
+                      `;
+                      list.appendChild(el);
+                  }
+              });
+          }
+          lucide.createIcons();
+          const container = document.getElementById('chat-content');
+          container.scrollTop = container.scrollHeight;
+      }
+
+      document.getElementById('back-btn').addEventListener('click', () => {
+         chatScreen.classList.add('hidden');
+         chatScreen.classList.remove('flex');
+         homeScreen.style.display = 'block';
+      });
+
+      // Rewards Screen Logic
+      window.openRewardsScreen = function() {
+          generateRewardsGrid();
+          rewardsScreen.classList.remove('hidden');
+          rewardsScreen.classList.add('flex');
+      }
+
+      window.closeRewardsScreen = function() {
+          rewardsScreen.classList.add('hidden');
+          rewardsScreen.classList.remove('flex');
+      }
+
+      function generateRewardsGrid() {
+          const grid = document.getElementById('rewards-grid');
+          grid.innerHTML = '';
+          const cards = [
+              { color: 'bg-[#4285f4]', badge: 'New', icon: 'gift' },
+              { color: 'bg-[#4285f4]', badge: 'New', icon: 'gift' },
+              { color: 'bg-[#4285f4]', icon: 'gift' },
+              { color: 'bg-orange-500', badge: '6d left', icon: 'trophy' },
+              { color: 'bg-orange-500', badge: 'Expiring soon', icon: 'trophy' },
+              { type: 'cashback', brand: 'Dominos', amount: '₹5 - ₹100', likes: '5k liked' },
+          ];
+
+          cards.forEach(card => {
+             const div = document.createElement('div');
+             div.className = "aspect-square rounded-2xl overflow-hidden relative shadow-md";
+             
+             if(card.type === 'cashback') {
+                 div.classList.add('bg-[#1f1f1f]');
+                 div.innerHTML = `
+                    <div class="h-1/2 bg-pink-200 relative p-2">
+                        <div class="absolute top-2 right-2 bg-[#004a77] text-[10px] text-white px-1.5 py-0.5 rounded-sm">${card.likes}</div>
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/368px-Google_2015_logo.svg.png" class="w-8 h-8 rounded-full bg-white p-1 absolute bottom-[-16px] left-2 border-2 border-[#1f1f1f] z-10">
+                    </div>
+                    <div class="h-1/2 p-2 pt-5 flex flex-col justify-center">
+                        <div class="text-white text-sm font-bold">${card.amount}</div>
+                        <div class="text-[#9aa0a6] text-[10px] truncate">Cashback on ${card.brand} order</div>
+                    </div>
+                 `;
+             } else {
+                 div.className += ` ${card.color} flex items-center justify-center`;
+                 let badgeHtml = '';
+                 if(card.badge) {
+                     badgeHtml = `<div class="absolute top-2 right-2 bg-black/30 text-white text-[10px] px-2 py-0.5 rounded-full font-medium backdrop-blur-sm">${card.badge}</div>`;
+                 }
+                 div.innerHTML = `
+                    ${badgeHtml}
+                    <div class="absolute inset-0 opacity-10 reward-pattern"></div>
+                    <i data-lucide="${card.icon}" class="w-12 h-12 text-white opacity-80"></i>
+                 `;
+             }
+             grid.appendChild(div);
+          });
+          lucide.createIcons();
+      }
+
+
+      // Amount Screen Logic
+      window.startPayment = function() {
+          if(!currentUser) return;
+          
+          document.getElementById('amount-screen-name').textContent = currentUser.name;
+          document.getElementById('amount-screen-bank-name').textContent = currentUser.bankName;
+          document.getElementById('amount-screen-phone').textContent = currentUser.phone;
+          
+          const avatar = document.getElementById('amount-screen-avatar');
+          if(currentUser.img) {
+              avatar.innerHTML = `<img src="${currentUser.img}" class="w-full h-full object-cover rounded-full">`;
+              avatar.className = "w-16 h-16 rounded-full mb-3";
+          } else {
+              avatar.className = `w-16 h-16 rounded-full flex items-center justify-center text-3xl text-white font-medium mb-3 ${currentUser.color || 'bg-blue-600'}`;
+              avatar.innerHTML = currentUser.initial || currentUser.name[0];
+          }
+
+          currentAmount = '0';
+          document.getElementById('amount-note-input').value = ''; // Reset note
+          updateAmountDisplay();
+          
+          // Reset UI state: show keypad, hide bottom sheet
+          document.getElementById('pay-button-container').classList.add('hidden');
+          document.getElementById('pay-button-container').classList.remove('animate-slide-down');
+          document.getElementById('pay-button-container').classList.add('animate-slide-up');
+          
+          document.getElementById('amount-keypad').style.display = 'block';
+
+          amountScreen.classList.remove('hidden');
+          setTimeout(() => amountScreen.classList.remove('translate-y-full'), 10);
+      }
+
+      window.closeAmountScreen = function() {
+          amountScreen.classList.add('translate-y-full');
+          setTimeout(() => amountScreen.classList.add('hidden'), 300);
+      }
+
+      window.handleAmountKey = function(key) {
+          if (key === 'backspace') {
+              currentAmount = currentAmount.length > 1 ? currentAmount.slice(0, -1) : '0';
+          } else if (key === '.') {
+              if (!currentAmount.includes('.')) currentAmount += '.';
+          } else {
+              if(currentAmount.replace('.','').length >= 7) return; 
+              currentAmount = currentAmount === '0' ? key : currentAmount + key;
+          }
+          updateAmountDisplay();
+      }
+
+      function updateAmountDisplay() {
+          document.getElementById('amount-display').textContent = currentAmount;
+          document.getElementById('pay-btn-amount').textContent = currentAmount;
+      }
+
+      // Show Payment Bottom Sheet
+      window.showPaymentSheet = function() {
+          if(parseFloat(currentAmount) === 0) return;
+
+          document.getElementById('amount-keypad').style.display = 'none';
+          document.getElementById('pay-button-container').classList.remove('hidden');
+      }
+
+      // Allow dismissing sheet
+      document.getElementById('amount-display').parentElement.addEventListener('click', () => {
+           document.getElementById('pay-button-container').classList.add('hidden');
+           document.getElementById('amount-keypad').style.display = 'block';
+           updateAmountDisplay();
+      });
+
+      // NEW: Start Processing (Direct to PIN)
+      window.startProcessingPayment = function() {
+          const sheet = document.getElementById('pay-button-container');
+          
+          // 1. Slide down sheet
+          sheet.classList.remove('animate-slide-up');
+          sheet.classList.add('animate-slide-down');
+          
+          // 2. Hide sheet after animation & Open PIN
+          setTimeout(() => {
+              sheet.classList.add('hidden'); // Hide after animation
+              openPinScreen();
+          }, 200);
+      }
+
+
+      // PIN Screen Logic
+      window.openPinScreen = function() {
+          document.getElementById('pin-screen-bank-name').textContent = currentUser.bankName;
+          document.getElementById('pin-screen-amount').textContent = parseFloat(currentAmount).toFixed(2);
+          document.getElementById('pin-warning-name').textContent = currentUser.bankName;
+          
+          currentPin = '';
+          updatePinDots();
+          
+          pinScreen.classList.remove('hidden');
+          pinScreen.classList.add('flex');
+      }
+
+      window.handlePinKey = function(key) {
+          if(key === 'backspace') {
+              currentPin = currentPin.slice(0, -1);
+          } else {
+              if(currentPin.length < 4) {
+                  currentPin += key;
+              }
+          }
+          updatePinDots();
+      }
+
+      function updatePinDots() {
+          // Logic: pin-slot has class "empty" (shows line) or "filled" (shows dot)
+          // We iterate 0 to 3
+          for (let i = 0; i < 4; i++) {
+              const slot = document.getElementById(`pin-slot-${i}`);
+              if (i < currentPin.length) {
+                  // It's filled
+                  slot.classList.remove('empty');
+                  slot.classList.add('filled');
+                  slot.textContent = ''; 
+              } else {
+                  // It's empty
+                  slot.classList.remove('filled');
+                  slot.classList.add('empty');
+                  slot.textContent = '';
+              }
+          }
+      }
+
+      window.submitPin = function() {
+          if(currentPin === '0420') {
+              // Success
+              pinScreen.classList.add('hidden');
+              
+              // Only video plays, no text overlay update needed
+              successScreen.classList.remove('hidden');
+              successScreen.classList.add('flex');
+              
+              // New Video Logic
+              const video = document.getElementById('success-video');
+              video.currentTime = 0;
+              // Attempt to play - user gesture already happened via key click
+              video.muted = false; // Ensure audio is on
+              video.play().catch(e => console.log("Video play failed", e));
+              
+              // Fallback just in case video fails or onended doesn't fire
+              const fallbackTimeout = setTimeout(() => {
+                   finalizeTransaction();
+              }, 5000); 
+
+              video.onended = () => {
+                  clearTimeout(fallbackTimeout);
+                  finalizeTransaction();
+              };
+
+              // Save Tx
+              saveTransaction(currentUser.id, {
+                  type: 'payment',
+                  amount: currentAmount,
+                  date: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                  timestamp: Date.now()
+              });
+
+          } else {
+              setTimeout(() => {
+                  currentPin = '';
+                  updatePinDots();
+              }, 200);
+          }
+      }
+      
+      function finalizeTransaction() {
+          const successScreen = document.getElementById('success-screen');
+          successScreen.classList.add('hidden');
+          closeAmountScreen();
+          renderChatHistory();
+      }
+
+      // Message Logic
+      window.sendMessage = function() {
+          const input = document.getElementById('message-input');
+          const txt = input.value.trim();
+          if(!txt) return;
+
+          saveTransaction(currentUser.id, {
+              type: 'message',
+              content: txt,
+              date: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+          });
+          
+          input.value = '';
+          renderChatHistory();
+      }
+    </script>
+  </body>
+</html>
