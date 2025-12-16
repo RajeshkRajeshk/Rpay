@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>GPay Clone</title>
+    <title>RPay Clone</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
@@ -128,6 +128,16 @@
         height: 16px;
         animation: spin 1s linear infinite;
       }
+      
+      /* Blue Spinner for Light Mode */
+      .spinner-blue {
+        border: 3px solid #e0e0e0;
+        border-left-color: #1a73e8;
+        border-radius: 50%;
+        width: 36px;
+        height: 36px;
+        animation: spin 1s linear infinite;
+      }
     </style>
   <script type="importmap">
 {
@@ -143,7 +153,7 @@
     <!-- Splash Screen (Restored) -->
     <div id="splash-screen" class="fixed inset-0 bg-[#121212] z-[100] flex flex-col items-center justify-between py-12 transition-opacity duration-300">
         <div class="flex-1 flex items-center justify-center">
-            <img src="logo.png" class="w-[150px] h-[150px] object-contain"/>
+            <img src="logo.png" class="w-[150px] h-[150px] object-contain" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Google_Pay_%28GPay%29_Logo_%282020%29.svg/512px-Google_Pay_%28GPay%29_Logo_%282020%29.svg.png'"/>
         </div>
         <div class="flex flex-col items-center gap-2">
              <span class="text-white text-4xl font-normal tracking-wide">Google</span>
@@ -174,9 +184,9 @@
           </div>
         </div>
 
-        <!-- User Profile -->
-        <div class="flex-shrink-0">
-          <div class="h-9 w-9 rounded-full bg-gray-700 overflow-hidden border border-[#5f6360] ">
+        <!-- User Profile (Trigger) -->
+        <div class="flex-shrink-0 cursor-pointer" onclick="openProfileScreen()">
+          <div class="h-9 w-9 rounded-full bg-gray-700 overflow-hidden border border-[#5f6360]">
                <img src="https://picsum.photos/100/100?random=user" alt="Profile" class="h-full w-full object-cover" />
           </div>
         </div>
@@ -186,7 +196,7 @@
 
         <!-- Hero Section with Big Image -->
         <div class="relative w-full h-58 bg-gray-900 overflow-hidden mb-2">
-            <img src="head.jpg" alt="Hero" class="w-full h-full object-cover opacity-100" />
+            <img src="head.jpg" alt="Hero" class="w-full h-full object-cover opacity-100" onerror="this.style.display='none'; this.parentElement.style.height='200px'; this.parentElement.classList.add('bg-gradient-to-br', 'from-blue-900', 'to-black')" />
         </div>
         
         <div class="px-4 flex flex-col gap-6">
@@ -194,52 +204,52 @@
         <!-- Quick Actions -->
           <div class="grid grid-cols-4 gap-y-6 gap-x-2">
             <div class="flex flex-col items-center gap-2 group cursor-pointer">
-              <div class="w-12 h-12 flex items-center justify-center text-[#8ab4f8] mb-1 transition-transform group-active:scale-95">
-                <i data-lucide="qr-code" class="w-7 h-7" stroke-width="1.5"></i>
+              <div class="w-12 h-12 flex items-center justify-center text-[#8ab4f8] -mb-2 transition-transform group-active:scale-95">
+                <img src="1.png" class="w-18 h-18"></img>
               </div>
-              <span class="text-xs text-center text-gray-300 w-20 leading-tight">Scan any QR code</span>
+              <span class="text-2xs text-center text-gray-300 w-20 leading-tight">Scan any QR code</span>
             </div>
             <div class="flex flex-col items-center gap-2 group cursor-pointer">
-              <div class="w-12 h-12 flex items-center justify-center text-[#8ab4f8] mb-1 transition-transform group-active:scale-95">
-                <i data-lucide="users" class="w-7 h-7" stroke-width="1.5"></i>
+              <div class="w-12 h-12 flex items-center justify-center text-[#8ab4f8] -mb-2 transition-transform group-active:scale-95">
+                <img src="2.png" class="w-18 h-18" ></img>
               </div>
-              <span class="text-xs text-center text-gray-300 w-20 leading-tight">Pay contacts</span>
+              <span class="text-2xs text-center text-gray-300 w-20 leading-tight">Pay contacts</span>
             </div>
             <div class="flex flex-col items-center gap-2 group cursor-pointer">
-              <div class="w-12 h-12 flex items-center justify-center text-[#8ab4f8] mb-1 transition-transform group-active:scale-95">
-                <i data-lucide="smartphone" class="w-7 h-7" stroke-width="1.5"></i>
+              <div class="w-12 h-12 flex items-center justify-center text-[#8ab4f8] -mb-2 transition-transform group-active:scale-95">
+                <img src="3.png" class="w-18 h-18" ></img>
               </div>
-              <span class="text-xs text-center text-gray-300 w-20 leading-tight">Pay phone number</span>
+              <span class="text-2xs text-center text-gray-300 w-20 leading-tight">Pay phone number</span>
             </div>
             <div class="flex flex-col items-center gap-2 group cursor-pointer">
-              <div class="w-12 h-12 flex items-center justify-center text-[#8ab4f8] mb-1 transition-transform group-active:scale-95">
-                <i data-lucide="landmark" class="w-7 h-7" stroke-width="1.5"></i>
+              <div class="w-12 h-12 flex items-center justify-center text-[#8ab4f8] -mb-2 transition-transform group-active:scale-95">
+                <img src="4.png" class="w-18 h-18" ></img>
               </div>
-              <span class="text-xs text-center text-gray-300 w-20 leading-tight">Bank transfer</span>
+              <span class="text-2xs text-center text-gray-300 w-20 leading-tight">Bank transfer</span>
             </div>
             <div class="flex flex-col items-center gap-2 group cursor-pointer">
-              <div class="w-12 h-12 flex items-center justify-center text-[#8ab4f8] mb-1 transition-transform group-active:scale-95">
-                <i data-lucide="at-sign" class="w-7 h-7" stroke-width="1.5"></i>
+              <div class="w-12 h-12 flex items-center justify-center text-[#8ab4f8] -mb-2 transition-transform group-active:scale-95">
+                <img src="5.png" class="w-18 h-18" ></img>
               </div>
-              <span class="text-xs text-center text-gray-300 w-20 leading-tight">Pay UPI ID or number</span>
+              <span class="text-2xs text-center text-gray-300 w-20 leading-tight">Pay UPI ID or number</span>
             </div>
             <div class="flex flex-col items-center gap-2 group cursor-pointer">
-              <div class="w-12 h-12 flex items-center justify-center text-[#8ab4f8] mb-1 transition-transform group-active:scale-95">
-                <i data-lucide="user" class="w-7 h-7" stroke-width="1.5"></i>
+              <div class="w-12 h-12 flex items-center justify-center text-[#8ab4f8] -mb-2 transition-transform group-active:scale-95">
+                <img src="6.png" class="w-18 h-18"></img>
               </div>
-              <span class="text-xs text-center text-gray-300 w-20 leading-tight">Self transfer</span>
+              <span class="text-2xs text-center text-gray-300 w-20 leading-tight">Self transfer</span>
             </div>
             <div class="flex flex-col items-center gap-2 group cursor-pointer">
-              <div class="w-12 h-12 flex items-center justify-center text-[#8ab4f8] mb-1 transition-transform group-active:scale-95">
-                <i data-lucide="receipt-text" class="w-7 h-7" stroke-width="1.5"></i>
+              <div class="w-12 h-12 flex items-center justify-center text-[#8ab4f8] -mb-2 transition-transform group-active:scale-95">
+                <img src="7.png" class="w-18 h-18" ></img>
               </div>
-              <span class="text-xs text-center text-gray-300 w-20 leading-tight">Pay bills</span>
+              <span class="text-1xl text-center text-gray-300 w-20 leading-tight">Pay bills</span>
             </div>
             <div class="flex flex-col items-center gap-2 group cursor-pointer">
-              <div class="w-12 h-12 flex items-center justify-center text-[#8ab4f8] mb-1 transition-transform group-active:scale-95">
-                <i data-lucide="smartphone-charging" class="w-7 h-7" stroke-width="1.5"></i>
+              <div class="w-12 h-12 flex items-center justify-center text-[#8ab4f8] -mb-2 transition-transform group-active:scale-95">
+                <img src="8.png" class="w-18 h-18" ></img>
               </div>
-              <span class="text-xs text-center text-gray-300 w-20 leading-tight">Mobile recharge</span>
+              <span class="text-2xs text-center text-gray-300 w-20 leading-tight">Mobile recharge</span>
             </div>
           </div>
 
@@ -462,7 +472,9 @@
               </div>
               <i data-lucide="chevron-right" class="w-5 h-5 text-gray-500"></i>
             </div>
-            <div class="flex items-center justify-between py-4 cursor-pointer active:bg-gray-800 transition-colors">
+            
+            <!-- Transaction History Link -->
+             <div class="flex items-center justify-between py-4 cursor-pointer active:bg-gray-800 transition-colors" onclick="openTransactionHistory()">
               <div class="flex items-center gap-4">
                 <div class="text-blue-300">
                   <i data-lucide="history" class="w-6 h-6" stroke-width="1.5"></i>
@@ -471,7 +483,9 @@
               </div>
               <i data-lucide="chevron-right" class="w-5 h-5 text-gray-500"></i>
             </div>
-            <div class="flex items-center justify-between py-4 cursor-pointer active:bg-gray-800 transition-colors">
+            
+            <!-- Check Bank Balance Link with Logic -->
+            <div class="flex items-center justify-between py-4 cursor-pointer active:bg-gray-800 transition-colors" onclick="checkBalance()">
               <div class="flex items-center gap-4">
                 <div class="text-blue-300">
                   <i data-lucide="landmark" class="w-6 h-6" stroke-width="1.5"></i>
@@ -485,9 +499,9 @@
         </div>
         
         <!-- Invite Footer with Background Image -->
-        <div class="relative mt-1 pb-20 overflow-hidden bg-[#202124]">
+        <div class="relative mt-0 pb-20 -mb-10 overflow-hidden bg-[#202124]">
           <!-- Footer Background Image -->
-          <img src="footer.jpg" class="absolute inset-0 w-full h-full object-cover opacity-100 pointer-events-none">
+          <img src="footer.jpg" class="absolute inset-0 w-full h-full object-cover opacity-100 pointer-events-none" onerror="this.style.display='none'; this.parentElement.classList.add('bg-gray-800')">
 
          <div class="relative z-10 pt-10 px-6">
            <h3 class="text-lg text-white font-medium mb-2">Invite friends to get ₹101</h3>
@@ -697,11 +711,7 @@
                  <input type="text" id="amount-note-input" class="bg-[#1f1f1f] text-white text-center rounded-lg px-4 py-2 outline-none placeholder-gray-400 w-48 text-sm" placeholder="Add note" />
             </div>
             
-            <!-- Paying... Pill (REMOVED) -->
-            <!-- Direct logic in script now -->
-
             <!-- Bottom Sheet / Pay Button Area -->
-            <!-- Updated to appear lower (flush bottom) -->
             <div id="pay-button-container" class="absolute bottom-0 left-0 w-full hidden animate-slide-up">
                  <div class="bg-[#202124] rounded-t-3xl p-6 w-full text-white shadow-2xl">
                     <h3 class="text-lg font-medium mb-6">Choose account to pay with</h3>
@@ -733,7 +743,7 @@
             </div>
         </div>
 
-        <!-- Custom Keypad with Tick Button (Reorganized) -->
+        <!-- Custom Keypad with Tick Button -->
         <div id="amount-keypad" class="bg-[#121212] pb-4 relative">
              <div class="grid grid-cols-3 gap-y-2 px-2 pb-2">
                  <button class="key-btn h-14 text-2xl text-white font-normal rounded-full flex items-center justify-center" onclick="handleAmountKey('1')">1</button>
@@ -745,33 +755,31 @@
                  <button class="key-btn h-14 text-2xl text-white font-normal rounded-full flex items-center justify-center" onclick="handleAmountKey('7')">7</button>
                  <button class="key-btn h-14 text-2xl text-white font-normal rounded-full flex items-center justify-center" onclick="handleAmountKey('8')">8</button>
                  <button class="key-btn h-14 text-2xl text-white font-normal rounded-full flex items-center justify-center" onclick="handleAmountKey('9')">9</button>
-                 <!-- Row 4: Backspace (Left), 0 (Center), Empty (Right) -->
                  <button class="key-btn h-14 text-white flex items-center justify-center rounded-full" onclick="handleAmountKey('backspace')">
                      <i data-lucide="delete" class="w-6 h-6"></i>
                  </button>
                  <button class="key-btn h-14 text-2xl text-white font-normal rounded-full flex items-center justify-center" onclick="handleAmountKey('0')">0</button>
-                 <div class="h-14"></div> <!-- Empty space -->
+                 <div class="h-14"></div>
              </div>
-             <!-- Next / Tick Button (Always Visible) -->
              <button id="amount-next-btn" onclick="showPaymentSheet()" class="absolute bottom-6 right-6 bg-[#8ab4f8] w-14 h-14 rounded-xl flex items-center justify-center shadow-lg active:scale-95 transition-transform z-10">
                  <i data-lucide="check" class="w-8 h-8 text-[#121212]"></i>
              </button>
         </div>
     </div>
-
+    
     <!-- PIN Screen Overlay (White Mode) -->
-    <div id="pin-screen" class="fixed inset-0 bg-[#f8f9fa] z-[80] hidden flex-col">
+    <div id="pin-screen" class="fixed inset-0 bg-[#f8f9fa] z-[95] hidden flex-col">
         <!-- Top Header -->
         <div class="flex justify-between items-start px-4 py-4 bg-[#f8f9fa] border-b border-gray-300">
              <div class="flex flex-col">
                  <span class="text-[#000000] font-bold text-[16px]">Union Bank of India</span>
-                 <span class="text-gray-600 text-sm tracking-widest mt-0.5">XXXX7574</span>
+                 <span class="text-gray-600 text-sm tracking-widest mt-0.5">XXXX1420</span>
              </div>
              <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/UPI-Logo-vector.svg/1200px-UPI-Logo-vector.svg.png" class="h-5 object-contain mt-1">
         </div>
         
-        <!-- Transaction Info Bar -->
-        <div class="bg-[#e5e7eb] h-12 px-4 flex justify-between items-center">
+        <!-- Transaction Info Bar (Hidden for Balance Check) -->
+        <div id="pin-transaction-bar" class="bg-[#e5e7eb] h-12 px-4 flex justify-between items-center">
              <div class="flex gap-2 items-center w-1/2 overflow-hidden">
                  <span class="text-[#5f6368] text-xs">To:</span>
                  <span id="pin-screen-bank-name" class="text-black font-normal text-sm truncate"></span>
@@ -789,9 +797,7 @@
         <div class="flex-1 flex flex-col items-center pt-10 bg-[#f8f9fa]">
             <h3 class="text-[#202124] text-xs font-medium mb-12 tracking-wider">ENTER 4-DIGIT UPI PIN</h3>
             
-            <!-- 4 Slots for PIN -->
-            <div class="flex gap-8 mb-16">
-                <!-- Javascript will toggle classes 'empty' (line) and 'filled' (dot) -->
+            <div class="flex gap-8 mb-12">
                 <div class="pin-dot-container empty" id="pin-slot-0"></div>
                 <div class="pin-dot-container empty" id="pin-slot-1"></div>
                 <div class="pin-dot-container empty" id="pin-slot-2"></div>
@@ -799,40 +805,39 @@
             </div>
             
             <!-- Warning Banner -->
-            <div class="bg-[#fef7e0] px-4 py-3 rounded-lg w-[90%] flex items-start gap-3 border border-orange-100">
+            <div id="pin-warning-banner" class="bg-[#fef7e0] px-4 py-3 rounded-lg w-[90%] flex items-start gap-3 border border-orange-100 hidden">
                  <div class="w-5 h-5 bg-[#f09d00] rounded-full text-white flex items-center justify-center text-xs font-bold mt-0.5 flex-shrink-0">!</div>
                  <p class="text-xs text-[#5f6368] leading-snug">
                     You are transferring money from your account to <span id="pin-warning-name" class="font-medium"></span>
                  </p>
             </div>
+            
+            <!-- Security Text (Balance) -->
+            <div id="pin-security-text" class="w-[80%] text-center hidden">
+                <p class="text-[#5f6368] text-xs leading-relaxed">
+                    UPI PIN will keep your account secure from unauthorized access. Do not share this PIN with anyone.
+                </p>
+            </div>
         </div>
 
-        <!-- PIN Keypad (Custom) -->
+        <!-- PIN Keypad -->
         <div class="bg-[#f2f2f2]">
             <div class="grid grid-cols-3">
-                <!-- No borders for buttons -->
                 <button class="pin-keypad-btn py-5" onclick="handlePinKey('1')">1</button>
                 <button class="pin-keypad-btn py-5" onclick="handlePinKey('2')">2</button>
                 <button class="pin-keypad-btn py-5" onclick="handlePinKey('3')">3</button>
-                
                 <button class="pin-keypad-btn py-5" onclick="handlePinKey('4')">4</button>
                 <button class="pin-keypad-btn py-5" onclick="handlePinKey('5')">5</button>
                 <button class="pin-keypad-btn py-5" onclick="handlePinKey('6')">6</button>
-                
                 <button class="pin-keypad-btn py-5" onclick="handlePinKey('7')">7</button>
                 <button class="pin-keypad-btn py-5" onclick="handlePinKey('8')">8</button>
                 <button class="pin-keypad-btn py-5" onclick="handlePinKey('9')">9</button>
-                
-                <!-- Backspace (Left) -->
                 <button class="pin-keypad-btn py-5 flex items-center justify-center" onclick="handlePinKey('backspace')">
                    <div class="bg-[#1a237e] text-white w-10 h-8 rounded flex items-center justify-center relative shadow-sm" style="clip-path: polygon(25% 0%, 100% 0%, 100% 100%, 25% 100%, 0% 50%); margin-left: 5px;">
                      <span class="text-sm font-bold relative left-1">✕</span>
                    </div>
                 </button>
-                
                 <button class="pin-keypad-btn py-5" onclick="handlePinKey('0')">0</button>
-                
-                <!-- Submit (Right) -->
                 <button class="pin-keypad-btn py-5 flex items-center justify-center" onclick="submitPin()">
                     <div class="w-12 h-12 bg-[#1a237e] rounded-full flex items-center justify-center shadow-md">
                         <i data-lucide="check" class="text-white w-6 h-6 stroke-[3]"></i>
@@ -842,11 +847,121 @@
         </div>
     </div>
     
-    <!-- Success Animation Screen (Clean Video Only) -->
+    <!-- Balance Display Screen (Updated Design) -->
+    <div id="balance-display-screen" class="fixed inset-0 bg-[#121212] z-[99] hidden flex-col">
+         <!-- Header -->
+         <div class="p-4 pt-6">
+            <button onclick="closeBalanceScreen()"><i data-lucide="arrow-left" class="w-6 h-6 text-white"></i></button>
+         </div>
+         
+         <!-- Content (Left Aligned) -->
+         <div class="flex-1 flex flex-col items-start px-6 pt-2">
+             <h2 class="text-[#e8eaed] text-xl mb-4 font-normal">Bank balance</h2>
+             <div class="text-white text-[42px] font-normal mb-8">₹<span id="fetched-balance"></span></div>
+             
+             <div class="flex flex-col items-start gap-1">
+                 <div class="text-[#e8eaed] text-[15px] font-medium">Savings account</div>
+                 <div class="text-[#9aa0a6] text-[14px]">Union Bank of India 7574</div>
+             </div>
+         </div>    
+         <!-- Footer -->
+         <div class="pb-8 flex justify-center items-center gap-3 opacity-70">
+            <span class="text-[10px] text-gray-400 font-medium">POWERED BY</span>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/ICICI_Bank_Logo.svg/2560px-ICICI_Bank_Logo.svg.png" class="h-3 filter grayscale brightness-200">
+            <div class="h-3 w-[1px] bg-gray-600"></div>
+             <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/UPI-Logo-vector.svg/1200px-UPI-Logo-vector.svg.png" class="h-3 filter grayscale brightness-200">
+        </div>
+    </div>
+    
+    <!-- Success Animation Screen (Restored Overlay Text) -->
     <div id="success-screen" class="fixed inset-0 bg-black z-[90] hidden">
          <video id="success-video" class="absolute inset-0 w-full h-full object-cover" playsinline>
              <source src="success_tick.mp4" type="video/mp4">
          </video>
+    </div>
+    
+    <!-- Insufficient Balance Popup -->
+    <div id="insufficient-balance-popup" class="fixed inset-0 z-[100] hidden flex-col justify-end bg-black/60 transition-opacity duration-300">
+         <div class="bg-[#1f1f1f] rounded-t-3xl p-4 w-full animate-slide-up flex flex-col items-center pb-8 border-t border-gray-800">
+            <!-- Red Error Box -->
+            <div class="w-full bg-[#b91c1c] rounded-2xl p-5 mb-5 relative overflow-hidden">
+                <div class="flex gap-3 mb-2">
+                   <div class="bg-white/20 rounded-full p-0.5 w-6 h-6 flex items-center justify-center shrink-0">
+                       <i data-lucide="circle-alert" class="text-white w-4 h-4 stroke-[3]"></i>
+                   </div>
+                   <h3 class="text-white text-[17px] font-medium">Insufficient bank balance</h3>
+                </div>
+                <p class="text-white/90 text-sm leading-relaxed mb-4 pl-9">
+                   Your bank account does not have enough balance. Check your balance and try again.
+                </p>
+                <div class="flex justify-end pr-1">
+                   <div class="bg-black/30 rounded-full flex overflow-hidden">
+                       <button class="px-3 py-1 text-xs font-medium text-white bg-white/20">English</button>
+                       <button class="px-3 py-1 text-xs font-medium text-gray-300 hover:bg-white/10">தமிழ்</button>
+                   </div>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <button onclick="handleInsufficientBalanceAction('check')" class="w-full bg-[#a8c7fa] text-[#062e6f] font-medium text-[15px] py-3 rounded-full mb-3">
+               Check bank balance
+            </button>
+            <button onclick="handleInsufficientBalanceAction('dismiss')" class="w-full border border-[#5f6368] text-[#a8c7fa] font-medium text-[15px] py-3 rounded-full mb-8">
+               Dismiss
+            </button>
+
+            <!-- Footer Logo -->
+            <div class="flex justify-center items-center gap-3 opacity-70">
+                <span class="text-[10px] text-gray-400 font-medium">POWERED BY</span>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/ICICI_Bank_Logo.svg/2560px-ICICI_Bank_Logo.svg.png" class="h-3 filter grayscale brightness-200">
+                <div class="h-3 w-[1px] bg-gray-600"></div>
+                 <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/UPI-Logo-vector.svg/1200px-UPI-Logo-vector.svg.png" class="h-3 filter grayscale brightness-200">
+            </div>
+         </div>
+    </div>
+
+    <!-- Transaction History Screen -->
+    <div id="transaction-history-screen" class="fixed inset-0 bg-[#121212] z-[80] hidden flex-col">
+        <!-- Header -->
+        <div class="px-2 py-3 bg-[#121212] flex items-center gap-3">
+            <button onclick="closeTransactionHistory()" class="p-2 rounded-full hover:bg-[#1f1f1f]">
+                <i data-lucide="arrow-left" class="w-6 h-6 text-white"></i>
+            </button>
+            <div class="flex-1 bg-[#202124] rounded-full h-11 flex items-center px-4">
+               <i data-lucide="search" class="w-5 h-5 text-gray-400 mr-3"></i>
+               <span class="text-gray-400 text-[15px]">Search transactions</span>
+            </div>
+             <button class="p-2 rounded-full hover:bg-[#1f1f1f]">
+                <i data-lucide="more-vertical" class="w-5 h-5 text-white"></i>
+            </button>
+        </div>
+
+        <!-- Filters -->
+        <div class="px-4 py-2 flex gap-2 overflow-x-auto no-scrollbar border-b border-[#1f1f1f]">
+            <button class="px-4 py-1.5 rounded-lg border border-[#5f6368] text-sm text-gray-300 font-medium whitespace-nowrap bg-transparent flex items-center gap-1">
+                Date <i data-lucide="chevron-down" class="w-4 h-4"></i>
+            </button>
+            <button class="px-4 py-1.5 rounded-lg border border-[#5f6368] text-sm text-gray-300 font-medium whitespace-nowrap bg-transparent flex items-center gap-1">
+                Amount <i data-lucide="chevron-down" class="w-4 h-4"></i>
+            </button>
+             <button class="px-4 py-1.5 rounded-lg border border-[#5f6368] text-sm text-gray-300 font-medium whitespace-nowrap bg-transparent flex items-center gap-1">
+                Payment method <i data-lucide="chevron-down" class="w-4 h-4"></i>
+            </button>
+        </div>
+
+        <!-- Header Total -->
+        <div class="px-4 py-6 bg-[#121212]">
+             <div class="text-sm text-gray-400 mb-1">2025</div>
+             <div class="flex justify-between items-baseline">
+                 <h2 class="text-2xl text-white">December</h2>
+                 <div class="text-xl text-white">₹78,407.85</div>
+             </div>
+        </div>
+
+        <!-- Transaction List -->
+        <div class="flex-1 overflow-y-auto" id="global-history-list">
+             <!-- Populated JS -->
+        </div>
     </div>
     
     <!-- Rewards Screen -->
@@ -861,14 +976,12 @@
         
         <!-- Rewards Hero Image -->
         <div class="w-full h-32 bg-[#202124] relative overflow-hidden">
-             <!-- Simplified scenic vector illustration -->
              <div class="absolute bottom-0 w-full h-16 bg-[#1f1f1f]"></div>
              <div class="absolute bottom-0 left-0 w-full h-full flex items-end justify-center opacity-60">
                 <svg viewBox="0 0 100 20" class="w-full h-auto text-green-700 fill-current">
                     <path d="M0,20 C30,5 70,5 100,20 Z" />
                 </svg>
              </div>
-             <!-- Adding some abstract floating gifts -->
              <div class="absolute top-4 right-10 w-8 h-8 bg-yellow-500 rotate-12 rounded"></div>
              <div class="absolute top-8 right-20 w-6 h-6 bg-blue-500 -rotate-12 rounded"></div>
         </div>
@@ -882,24 +995,253 @@
         </div>
     </div>
 
+    <!-- Profile Screen Overlay -->
+    <div id="profile-screen" class="fixed inset-0 bg-[#121212] z-[100] hidden flex-col overflow-y-auto">
+      <!-- Header -->
+      <div class="sticky top-0 bg-[#121212] flex justify-between items-center p-4 z-10">
+        <button onclick="closeProfileScreen()"><i data-lucide="arrow-left" class="w-6 h-6 text-white"></i></button>
+        <button><i data-lucide="more-vertical" class="w-6 h-6 text-white"></i></button>
+      </div>
+
+      <!-- Profile Details -->
+      <div class="px-6 pb-6 flex justify-between items-start">
+         <div class="flex flex-col gap-1">
+            <h1 class="text-3xl text-white font-normal mb-1">Rajesh K</h1>
+            <div class="text-[#9aa0a6] text-sm mb-1">UPI ID: k.rajesh90033@oksbi</div>
+            <div class="flex items-center gap-3">
+               <span class="text-white text-lg">9677416472</span>
+               <div class="bg-[#1f1f1f] text-[#8ab4f8] px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1 border border-[#3c4043]">
+                  <div class="bg-[#8ab4f8] rounded-full p-0.5"><i data-lucide="check" class="w-2 h-2 text-black stroke-[4]"></i></div>
+                  UPI number
+               </div>
+            </div>
+         </div>
+         <div class="relative">
+            <div class="w-20 h-20 rounded-full overflow-hidden border border-gray-600">
+               <img src="https://picsum.photos/100/100?random=user" class="w-full h-full object-cover">
+            </div>
+            <div class="absolute bottom-0 right-0 bg-[#303134] p-1.5 rounded-full border border-[#121212]">
+               <i data-lucide="qr-code" class="w-4 h-4 text-white"></i>
+            </div>
+         </div>
+      </div>
+
+      <!-- Rewards Strip -->
+      <div class="px-4 mb-4">
+         <div class="flex items-center gap-3 py-2 cursor-pointer" onclick="openRewardsScreen()">
+            <i data-lucide="trophy" class="text-yellow-400 w-6 h-6 fill-yellow-400"></i>
+            <span class="text-white font-medium">₹103 <span class="font-normal text-gray-300">Rewards earned</span></span>
+         </div>
+      </div>
+
+      <!-- Setup Payment Methods Card -->
+      <div class="mx-4 bg-[#1f1f1f] rounded-2xl p-4 mb-6 border border-[#3c4043]">
+         <div class="flex justify-between items-center mb-6">
+            <span class="text-white font-medium">Set up payment methods 1/3</span>
+            <i data-lucide="chevron-right" class="text-gray-400 w-5 h-5"></i>
+         </div>
+         <div class="flex justify-between px-2">
+            <!-- Bank Account -->
+            <div class="flex flex-col items-center gap-2">
+               <i data-lucide="landmark" class="w-8 h-8 text-[#a8c7fa]"></i>
+               <div class="flex flex-col items-center">
+                  <span class="text-white text-sm font-medium">Bank account</span>
+                  <span class="text-[#9aa0a6] text-xs">1 account</span>
+               </div>
+            </div>
+            <!-- RuPay -->
+            <div class="flex flex-col items-center gap-2">
+               <div class="relative">
+                  <i data-lucide="credit-card" class="w-8 h-8 text-[#a8c7fa]"></i>
+                  <div class="absolute -bottom-1 -right-1 bg-[#1f1f1f] rounded-full p-0.5">
+                     <i data-lucide="plus-circle" class="w-4 h-4 text-white fill-[#1f1f1f]"></i>
+                  </div>
+               </div>
+               <div class="flex flex-col items-center">
+                  <span class="text-white text-sm font-medium">RuPay credit...</span>
+                  <span class="text-[#9aa0a6] text-xs">Pay with UPI</span>
+               </div>
+            </div>
+            <!-- UPI Lite -->
+            <div class="flex flex-col items-center gap-2">
+               <div class="relative">
+                  <i data-lucide="zap" class="w-8 h-8 text-[#a8c7fa]"></i>
+                  <div class="absolute -bottom-1 -right-1 bg-[#1f1f1f] rounded-full p-0.5">
+                     <i data-lucide="plus-circle" class="w-4 h-4 text-white fill-[#1f1f1f]"></i>
+                  </div>
+               </div>
+               <div class="flex flex-col items-center">
+                  <span class="text-white text-sm font-medium">UPI Lite</span>
+                  <span class="text-[#9aa0a6] text-xs">Pay PIN-free</span>
+               </div>
+            </div>
+         </div>
+      </div>
+
+      <!-- Menu List -->
+      <div class="flex flex-col px-2">
+         <!-- Credit/Debit Cards -->
+         <div class="flex items-start gap-4 py-4 px-4 hover:bg-[#1f1f1f] rounded-lg cursor-pointer">
+            <i data-lucide="credit-card" class="w-6 h-6 text-[#a8c7fa] mt-1"></i>
+            <div class="flex-1">
+               <div class="text-white text-[15px] font-medium">Pay with credit or debit cards</div>
+               <div class="text-[#9aa0a6] text-sm">Bills, online shopping, and more</div>
+            </div>
+            <span class="text-[#a8c7fa] text-sm font-medium">Add</span>
+         </div>
+
+         <!-- QR Code -->
+         <div class="flex items-start gap-4 py-4 px-4 hover:bg-[#1f1f1f] rounded-lg cursor-pointer">
+            <i data-lucide="qr-code" class="w-6 h-6 text-[#a8c7fa] mt-1"></i>
+            <div class="flex-1">
+               <div class="text-white text-[15px] font-medium">Your QR code</div>
+               <div class="text-[#9aa0a6] text-sm">Use to receive money from any UPI app</div>
+            </div>
+         </div>
+
+         <!-- Invite -->
+         <div class="flex items-start gap-4 py-4 px-4 hover:bg-[#1f1f1f] rounded-lg cursor-pointer">
+            <i data-lucide="gift" class="w-6 h-6 text-[#a8c7fa] mt-1"></i>
+            <div class="flex-1">
+               <div class="text-white text-[15px] font-medium">Invite friends, get rewards</div>
+               <div class="text-[#9aa0a6] text-sm">Share your code z41pf5c <i data-lucide="copy" class="inline w-3 h-3"></i></div>
+            </div>
+            <span class="text-[#a8c7fa] text-sm font-medium">Share</span>
+         </div>
+
+         <!-- Settings -->
+         <div class="flex items-start gap-4 py-4 px-4 hover:bg-[#1f1f1f] rounded-lg cursor-pointer">
+            <i data-lucide="settings" class="w-6 h-6 text-[#a8c7fa] mt-1"></i>
+            <div class="flex-1">
+               <div class="text-white text-[15px] font-medium">Settings</div>
+            </div>
+         </div>
+
+         <!-- Manage Account -->
+         <div class="flex items-start gap-4 py-4 px-4 hover:bg-[#1f1f1f] rounded-lg cursor-pointer">
+            <i data-lucide="user-circle" class="w-6 h-6 text-[#a8c7fa] mt-1"></i>
+            <div class="flex-1">
+               <div class="text-white text-[15px] font-medium">Manage Google account</div>
+            </div>
+         </div>
+
+         <!-- Get Help (Action) -->
+         <div class="flex items-start gap-4 py-4 px-4 hover:bg-[#1f1f1f] rounded-lg cursor-pointer" onclick="openHelpOptions()">
+            <i data-lucide="help-circle" class="w-6 h-6 text-[#a8c7fa] mt-1"></i>
+            <div class="flex-1">
+               <div class="text-white text-[15px] font-medium">Get help</div>
+            </div>
+         </div>
+
+         <!-- Language -->
+         <div class="flex items-start gap-4 py-4 px-4 hover:bg-[#1f1f1f] rounded-lg cursor-pointer">
+            <i data-lucide="globe" class="w-6 h-6 text-[#a8c7fa] mt-1"></i>
+            <div class="flex-1">
+               <div class="text-white text-[15px] font-medium">Language</div>
+               <div class="text-[#9aa0a6] text-sm">English</div>
+            </div>
+         </div>
+      </div>
+      
+      <div class="h-10"></div>
+    </div>
+
+    <!-- Help Options Sheet (New Design) -->
+    <div id="help-options-sheet" class="fixed inset-0 z-[110] hidden flex-col justify-end bg-black/60 transition-opacity">
+        <div class="flex-1" onclick="closeHelpOptions()"></div>
+        <div class="bg-[#1f1f1f] rounded-t-3xl p-6 w-full text-white shadow-2xl transform transition-transform translate-y-full">
+            <div class="w-12 h-1.5 bg-gray-600 rounded-full mx-auto mb-6 opacity-50"></div>
+            <h3 class="text-xl font-normal mb-6 text-center">App Settings</h3>
+            
+            <div class="space-y-3">
+                <button onclick="triggerResetAll()" class="w-full bg-[#3c4043] active:bg-[#4a4e51] p-4 rounded-xl flex items-center justify-between group transition-all">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full bg-red-900/30 flex items-center justify-center text-red-400">
+                            <i data-lucide="trash-2" class="w-5 h-5"></i>
+                        </div>
+                        <div class="text-left">
+                            <div class="text-white font-medium">Reset Application</div>
+                            <div class="text-xs text-gray-400">Clear all data and start fresh</div>
+                        </div>
+                    </div>
+                    <i data-lucide="chevron-right" class="w-5 h-5 text-gray-500"></i>
+                </button>
+
+                <button onclick="triggerResetBalance()" class="w-full bg-[#3c4043] active:bg-[#4a4e51] p-4 rounded-xl flex items-center justify-between group transition-all">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-full bg-blue-900/30 flex items-center justify-center text-blue-400">
+                            <i data-lucide="wallet" class="w-5 h-5"></i>
+                        </div>
+                        <div class="text-left">
+                            <div class="text-white font-medium">Reset Balance</div>
+                            <div class="text-xs text-gray-400">Restore default balance only</div>
+                        </div>
+                    </div>
+                    <i data-lucide="chevron-right" class="w-5 h-5 text-gray-500"></i>
+                </button>
+            </div>
+
+            <button onclick="closeHelpOptions()" class="w-full mt-6 py-3 text-[#a8c7fa] font-medium text-sm border border-[#5f6368] rounded-full">
+                Close
+            </button>
+        </div>
+    </div>
+
+    <!-- Generic Confirmation Modal -->
+    <div id="generic-modal" class="fixed inset-0 z-[120] hidden flex-col justify-end bg-black/60">
+        <div class="flex-1" onclick="closeGenericModal()"></div> 
+        <div id="generic-modal-content" class="bg-[#1f1f1f] rounded-t-3xl p-6 w-full text-white shadow-2xl transform translate-y-full pb-8">
+            <div class="flex flex-col items-center text-center">
+                <div id="modal-icon-container" class="w-16 h-16 rounded-full bg-red-900/20 flex items-center justify-center mb-4">
+                    <i id="modal-icon" data-lucide="alert-triangle" class="w-8 h-8 text-red-400"></i>
+                </div>
+                <h3 id="modal-title" class="text-xl font-medium mb-2">Title</h3>
+                <p id="modal-desc" class="text-gray-400 text-sm mb-8 px-4 leading-relaxed">Description goes here.</p>
+                
+                <div class="w-full space-y-3">
+                    <button id="modal-primary-btn" class="w-full bg-red-200 text-red-900 font-medium text-base py-3.5 rounded-full">
+                        Confirm Action
+                    </button>
+                    <button onclick="closeGenericModal()" class="w-full text-[#a8c7fa] font-medium text-base py-2">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
       lucide.createIcons();
       
-      // Splash Screen Logic
-      window.addEventListener('load', () => {
-          setTimeout(() => {
-              const splash = document.getElementById('splash-screen');
-              splash.classList.add('opacity-100', 'pointer-events-none');
-              setTimeout(() => {
-                  splash.style.display = 'none';
-              }, 300);
-          }, 500);
-      });
+      // Splash Screen Logic (Robust)
+      const hideSplash = () => {
+          const splash = document.getElementById('splash-screen');
+          if (splash && !splash.classList.contains('opacity-0')) {
+             splash.classList.add('opacity-0', 'pointer-events-none');
+             setTimeout(() => {
+                 splash.style.display = 'none';
+             }, 500);
+          }
+      };
+
+      if (document.readyState === 'complete') {
+        setTimeout(hideSplash, 2500);
+      } else {
+        window.addEventListener('load', () => setTimeout(hideSplash, 2500));
+        setTimeout(hideSplash, 4000); // Fallback
+      }
 
       // State
       let currentAmount = '0';
       let currentPin = '';
       let currentUser = null;
+      let pinMode = 'PAYMENT'; // 'PAYMENT' or 'BALANCE'
+      
+      // Initialize Balance
+      let walletBalance = localStorage.getItem('gpay_balance') 
+          ? parseFloat(localStorage.getItem('gpay_balance')) 
+          : 39525.70;
+
       let users = {
           'saravanan': { 
              id: 'saravanan',
@@ -1008,20 +1350,32 @@
           }
       };
 
-      // Recents Mock Data (using keys from users)
+      // User Order Persistence
+      let defaultUserOrder = Object.keys(users);
+      let storedUserOrder = localStorage.getItem('gpay_user_order') 
+          ? JSON.parse(localStorage.getItem('gpay_user_order')) 
+          : [];
+      defaultUserOrder.forEach(id => {
+          if(!storedUserOrder.includes(id)) {
+              storedUserOrder.push(id);
+          }
+      });
+      let userOrder = storedUserOrder;
+
+      // Recents Mock Data
       const recents = ['saravanan', 'jude', 'ruban', 'syed'];
 
-      // Function to Render People Grid with "More" logic
+      // Function to Render People Grid
       function renderPeople(showAll = false) {
           const grid = document.getElementById('people-grid');
           grid.innerHTML = '';
-          const userKeys = Object.keys(users);
-          const limit = 7; // Show 7 + More button initially
-
-          const keysToRender = showAll ? userKeys : userKeys.slice(0, limit);
+          const limit = 7;
+          const keysToRender = showAll ? userOrder : userOrder.slice(0, limit);
 
           keysToRender.forEach(key => {
               const user = users[key];
+              if (!user) return; 
+
               const div = document.createElement('div');
               div.className = "flex flex-col items-center cursor-pointer";
               div.onclick = () => openChat(user.id);
@@ -1048,8 +1402,7 @@
               grid.appendChild(div);
           });
 
-          // Add "More" or "Less" button
-          if (!showAll && userKeys.length > limit) {
+          if (!showAll && userOrder.length > limit) {
               const moreDiv = document.createElement('div');
               moreDiv.className = "flex flex-col items-center cursor-pointer";
               moreDiv.onclick = () => renderPeople(true);
@@ -1061,7 +1414,6 @@
               `;
               grid.appendChild(moreDiv);
           } else if (showAll) {
-               // Optional: Add "Less" button if you want to collapse back
                const lessDiv = document.createElement('div');
               lessDiv.className = "flex flex-col items-center cursor-pointer";
               lessDiv.onclick = () => renderPeople(false);
@@ -1076,9 +1428,7 @@
           lucide.createIcons();
       }
 
-      // Initialize People Grid
       renderPeople();
-
 
       // Search Screen Logic
       const searchScreen = document.getElementById('search-screen-overlay');
@@ -1095,9 +1445,9 @@
           searchScreen.classList.add('flex');
           mainSearchInput.focus();
           mainSearchInput.value = '';
-          searchOverlayPlaceholder.classList.remove('opacity-0'); // Show placeholder
+          searchOverlayPlaceholder.classList.remove('opacity-0'); 
           renderDefaultSearchContent();
-          toggleSearchContent(false); // Show default
+          toggleSearchContent(false); 
       }
 
       window.closeSearchScreen = function() {
@@ -1105,9 +1455,7 @@
           searchScreen.classList.remove('flex');
       }
 
-      // Render Default Lists
       function renderDefaultSearchContent() {
-          // Render Recents
           recentsList.innerHTML = '';
           recents.forEach(userId => {
               const user = users[userId];
@@ -1115,7 +1463,6 @@
               recentsList.innerHTML += createUserListItem(user);
           });
 
-          // Render All People (Just iterating all users for demo)
           allPeopleList.innerHTML = '';
           Object.values(users).forEach(user => {
                allPeopleList.innerHTML += createUserListItem(user);
@@ -1144,11 +1491,8 @@
           `;
       }
 
-      // Search Filtering
       mainSearchInput.addEventListener('input', (e) => {
           const val = e.target.value.toLowerCase();
-          
-          // Toggle animated placeholder visibility
           if (val.length > 0) {
               searchOverlayPlaceholder.classList.add('opacity-0');
           } else {
@@ -1156,8 +1500,7 @@
           }
 
           if(val.length > 0) {
-              toggleSearchContent(true); // Show results
-              
+              toggleSearchContent(true); 
               const matches = Object.values(users).filter(user => 
                   user.name.toLowerCase().includes(val) || 
                   user.phone.replace(/\s/g, '').includes(val)
@@ -1173,7 +1516,7 @@
               }
               lucide.createIcons();
           } else {
-              toggleSearchContent(false); // Show default
+              toggleSearchContent(false);
           }
       });
 
@@ -1187,7 +1530,7 @@
           }
       }
 
-      // Load Transactions from LocalStorage
+      // Load Transactions
       function getTransactions(userId) {
           const stored = localStorage.getItem(`gpay_tx_${userId}`);
           return stored ? JSON.parse(stored) : [];
@@ -1197,6 +1540,26 @@
           const txs = getTransactions(userId);
           txs.push(tx);
           localStorage.setItem(`gpay_tx_${userId}`, JSON.stringify(txs));
+          
+          // Also Save to Global History
+          let globalHistory = localStorage.getItem('gpay_global_history') 
+              ? JSON.parse(localStorage.getItem('gpay_global_history'))
+              : [];
+          
+          const userName = users[userId]?.name || 'Unknown';
+          const userImg = users[userId]?.img || null;
+          const userInitial = users[userId]?.initial || 'U';
+          const userColor = users[userId]?.color || 'bg-blue-600';
+          
+          globalHistory.unshift({
+              ...tx,
+              name: userName,
+              img: userImg,
+              initial: userInitial,
+              color: userColor,
+              userId: userId
+          });
+          localStorage.setItem('gpay_global_history', JSON.stringify(globalHistory));
       }
 
       // DOM Elements
@@ -1206,15 +1569,17 @@
       const pinScreen = document.getElementById('pin-screen');
       const successScreen = document.getElementById('success-screen');
       const rewardsScreen = document.getElementById('rewards-screen');
+      const balanceScreen = document.getElementById('balance-display-screen');
+      const insufficientPopup = document.getElementById('insufficient-balance-popup');
+      const historyScreen = document.getElementById('transaction-history-screen');
+      const profileScreen = document.getElementById('profile-screen');
+      const helpOptionsSheet = document.getElementById('help-options-sheet');
       
-      // Open Chat Logic (Modified to close search screen if open)
+      // Open Chat Logic
       window.openChat = function(userId) {
-          currentUser = users[userId] || users['jude']; // Fallback
-
-          // Close search if open
+          currentUser = users[userId] || users['jude'];
           closeSearchScreen();
 
-          // Set Header
           document.getElementById('chat-user-name').textContent = currentUser.name;
           document.getElementById('chat-user-phone').textContent = currentUser.phone;
           
@@ -1226,7 +1591,6 @@
               avatarContainer.innerHTML = currentUser.initial || currentUser.name[0];
           }
 
-          // Populate Profile View (if empty)
           document.getElementById('profile-name-lg').textContent = currentUser.name;
           document.getElementById('profile-banking-name').textContent = `Banking name: ${currentUser.bankName}`;
           document.getElementById('profile-phone-lg').textContent = currentUser.phone;
@@ -1249,7 +1613,6 @@
           lucide.createIcons();
       }
       
-      // Say Hello Logic for New Contacts
       window.sayHello = function() {
           if(!currentUser) return;
           
@@ -1280,7 +1643,7 @@
 
               txs.forEach((tx, index) => {
                   const el = document.createElement('div');
-                  el.className = "self-end max-w-[85%]";
+                  el.className = "self-end max-w-[90%]";
                   
                   if(tx.type === 'payment') {
                       debitCount++;
@@ -1296,8 +1659,6 @@
                          </div>
                       `;
                       list.appendChild(el);
-
-                      // Scratch Card Logic: After every 2 payments
                       if(debitCount % 2 === 0) {
                           const scratchEl = document.createElement('div');
                           scratchEl.className = "self-end max-w-[85%] cursor-pointer";
@@ -1306,7 +1667,6 @@
                             <div class="bg-[#303134] rounded-2xl p-4 relative overflow-hidden mb-1">
                                 <h3 class="text-white text-sm font-medium mb-3">You earned a scratch card!</h3>
                                 <div class="h-28 bg-[#303134] rounded-xl relative overflow-hidden flex items-center justify-center border border-[#5f6368]">
-                                     <!-- Inner Blue Card -->
                                     <div class="w-4/5 h-4/5 bg-[#4285f4] rounded-lg relative overflow-hidden flex items-center justify-center transform rotate-[-5deg] shadow-lg">
                                        <div class="absolute inset-0 opacity-20 reward-pattern"></div>
                                        <div class="w-8 h-8 rounded-full bg-blue-300 opacity-50 absolute top-2 right-2"></div>
@@ -1322,7 +1682,24 @@
                           `;
                           list.appendChild(scratchEl);
                       }
-
+                  } else if (tx.type === 'payment_failed') {
+                      // Failed Payment UI in Chat
+                       el.innerHTML = `
+                         <div class="bg-[#1f1f1f] rounded-2xl p-4 mb-1">
+                             <p class="text-white text-sm font-medium mb-1">Payment to ${currentUser.name.split(' ')[0]}</p>
+                             <div class="text-3xl text-white font-normal mb-2">₹${tx.amount}</div>
+                             <div class="flex items-center gap-1.5 mb-2">
+                                 <div class="bg-red-500/20 rounded-full p-0.5"><i data-lucide="circle-alert" class="w-3.5 h-3.5 text-red-500"></i></div>
+                                 <span class="text-xs text-white">Failed • ${tx.date}</span>
+                                 <i data-lucide="chevron-right" class="w-4 h-4 text-gray-500 ml-auto"></i>
+                             </div>
+                             <div class="border-t border-dashed border-gray-600 pt-2 mt-2">
+                                <p class="text-[11px] text-gray-400 mb-2">Payment failed - Insufficient bank balance</p>
+                                <button onclick="checkBalance()" class="text-[#8ab4f8] text-sm font-medium">Check balance</button>
+                             </div>
+                         </div>
+                      `;
+                      list.appendChild(el);
                   } else if (tx.type === 'message') {
                       el.innerHTML = `
                          <div class="bg-[#303134] rounded-2xl px-4 py-2 mb-1 text-white text-sm">
@@ -1345,7 +1722,6 @@
          homeScreen.style.display = 'block';
       });
 
-      // Rewards Screen Logic
       window.openRewardsScreen = function() {
           generateRewardsGrid();
           rewardsScreen.classList.remove('hidden');
@@ -1372,7 +1748,6 @@
           cards.forEach(card => {
              const div = document.createElement('div');
              div.className = "aspect-square rounded-2xl overflow-hidden relative shadow-md";
-             
              if(card.type === 'cashback') {
                  div.classList.add('bg-[#1f1f1f]');
                  div.innerHTML = `
@@ -1402,11 +1777,8 @@
           lucide.createIcons();
       }
 
-
-      // Amount Screen Logic
       window.startPayment = function() {
           if(!currentUser) return;
-          
           document.getElementById('amount-screen-name').textContent = currentUser.name;
           document.getElementById('amount-screen-bank-name').textContent = currentUser.bankName;
           document.getElementById('amount-screen-phone').textContent = currentUser.phone;
@@ -1421,14 +1793,12 @@
           }
 
           currentAmount = '0';
-          document.getElementById('amount-note-input').value = ''; // Reset note
+          document.getElementById('amount-note-input').value = ''; 
           updateAmountDisplay();
           
-          // Reset UI state: show keypad, hide bottom sheet
           document.getElementById('pay-button-container').classList.add('hidden');
           document.getElementById('pay-button-container').classList.remove('animate-slide-down');
           document.getElementById('pay-button-container').classList.add('animate-slide-up');
-          
           document.getElementById('amount-keypad').style.display = 'block';
 
           amountScreen.classList.remove('hidden');
@@ -1457,42 +1827,55 @@
           document.getElementById('pay-btn-amount').textContent = currentAmount;
       }
 
-      // Show Payment Bottom Sheet
       window.showPaymentSheet = function() {
           if(parseFloat(currentAmount) === 0) return;
-
           document.getElementById('amount-keypad').style.display = 'none';
           document.getElementById('pay-button-container').classList.remove('hidden');
       }
 
-      // Allow dismissing sheet
       document.getElementById('amount-display').parentElement.addEventListener('click', () => {
            document.getElementById('pay-button-container').classList.add('hidden');
            document.getElementById('amount-keypad').style.display = 'block';
            updateAmountDisplay();
       });
 
-      // NEW: Start Processing (Direct to PIN)
       window.startProcessingPayment = function() {
           const sheet = document.getElementById('pay-button-container');
-          
-          // 1. Slide down sheet
           sheet.classList.remove('animate-slide-up');
           sheet.classList.add('animate-slide-down');
-          
-          // 2. Hide sheet after animation & Open PIN
           setTimeout(() => {
-              sheet.classList.add('hidden'); // Hide after animation
-              openPinScreen();
+              sheet.classList.add('hidden');
+              openPinScreen('PAYMENT');
           }, 200);
       }
 
+      // Check Balance Logic Flow (Direct, Instant)
+      window.checkBalance = function() {
+          // Direct PIN Screen
+          openPinScreen('BALANCE');
+      }
+      
+      window.closeBalanceScreen = function() {
+          balanceScreen.classList.add('hidden');
+          balanceScreen.classList.remove('flex');
+      }
 
-      // PIN Screen Logic
-      window.openPinScreen = function() {
-          document.getElementById('pin-screen-bank-name').textContent = currentUser.bankName;
-          document.getElementById('pin-screen-amount').textContent = parseFloat(currentAmount).toFixed(2);
-          document.getElementById('pin-warning-name').textContent = currentUser.bankName;
+      window.openPinScreen = function(mode = 'PAYMENT') {
+          pinMode = mode; 
+          
+          if(mode === 'PAYMENT') {
+              document.getElementById('pin-transaction-bar').classList.remove('hidden');
+              document.getElementById('pin-warning-banner').classList.remove('hidden');
+              document.getElementById('pin-security-text').classList.add('hidden');
+              document.getElementById('pin-screen-bank-name').textContent = currentUser.bankName;
+              document.getElementById('pin-screen-amount').textContent = parseFloat(currentAmount).toFixed(2);
+              document.getElementById('pin-warning-name').textContent = currentUser.bankName;
+          } else {
+              // Balance Check Mode
+              document.getElementById('pin-transaction-bar').classList.add('hidden');
+              document.getElementById('pin-warning-banner').classList.add('hidden');
+              document.getElementById('pin-security-text').classList.remove('hidden');
+          }
           
           currentPin = '';
           updatePinDots();
@@ -1513,17 +1896,13 @@
       }
 
       function updatePinDots() {
-          // Logic: pin-slot has class "empty" (shows line) or "filled" (shows dot)
-          // We iterate 0 to 3
           for (let i = 0; i < 4; i++) {
               const slot = document.getElementById(`pin-slot-${i}`);
               if (i < currentPin.length) {
-                  // It's filled
                   slot.classList.remove('empty');
                   slot.classList.add('filled');
                   slot.textContent = ''; 
               } else {
-                  // It's empty
                   slot.classList.remove('filled');
                   slot.classList.add('empty');
                   slot.textContent = '';
@@ -1531,44 +1910,98 @@
           }
       }
 
+      // Insufficient Balance Popup Logic
+      window.handleInsufficientBalanceAction = function(action) {
+           insufficientPopup.classList.add('hidden');
+           insufficientPopup.classList.remove('flex');
+
+           if(action === 'check') {
+               checkBalance();
+           } 
+      }
+
       window.submitPin = function() {
           if(currentPin === '0420') {
-              // Success
               pinScreen.classList.add('hidden');
-              
-              // Only video plays, no text overlay update needed
-              successScreen.classList.remove('hidden');
-              successScreen.classList.add('flex');
-              
-              // New Video Logic
-              const video = document.getElementById('success-video');
-              video.currentTime = 0;
-              // Attempt to play - user gesture already happened via key click
-              video.muted = false; // Ensure audio is on
-              video.play().catch(e => console.log("Video play failed", e));
-              
-              // Fallback just in case video fails or onended doesn't fire
-              const fallbackTimeout = setTimeout(() => {
-                   finalizeTransaction();
-              }, 5000); 
 
-              video.onended = () => {
-                  clearTimeout(fallbackTimeout);
-                  finalizeTransaction();
-              };
+              if (pinMode === 'BALANCE') {
+                  // Show Final Balance Screen immediately (No Buffer)
+                  document.getElementById('fetched-balance').textContent = walletBalance.toLocaleString('en-IN', {minimumFractionDigits: 2});
+                  balanceScreen.classList.remove('hidden');
+                  balanceScreen.classList.add('flex');
+              } else {
+                  // Payment Mode Logic
+                  const payAmount = parseFloat(currentAmount);
 
-              // Save Tx
-              saveTransaction(currentUser.id, {
-                  type: 'payment',
-                  amount: currentAmount,
-                  date: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
-                  timestamp: Date.now()
-              });
+                  // CHECK FOR INSUFFICIENT BALANCE
+                  if (payAmount > walletBalance) {
+                      // Failed Flow
+                      saveTransaction(currentUser.id, {
+                          type: 'payment_failed',
+                          amount: currentAmount,
+                          date: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                          timestamp: Date.now()
+                      });
+                      
+                      closeAmountScreen();
+                      renderChatHistory();
+
+                      // Show Popup
+                      insufficientPopup.classList.remove('hidden');
+                      insufficientPopup.classList.add('flex');
+                  } else {
+                      // Success Flow
+                      walletBalance -= payAmount;
+                      localStorage.setItem('gpay_balance', walletBalance);
+                      
+                      userOrder = userOrder.filter(id => id !== currentUser.id);
+                      userOrder.unshift(currentUser.id);
+                      localStorage.setItem('gpay_user_order', JSON.stringify(userOrder));
+                      renderPeople();
+
+                      successScreen.classList.remove('hidden');
+                      successScreen.classList.add('flex');
+                      
+
+
+                      const video = document.getElementById('success-video');
+                      video.currentTime = 0;
+                      video.muted = false; 
+                      video.play().catch(e => console.log("Video play failed", e));
+                      
+                      const fallbackTimeout = setTimeout(() => {
+                           finalizeTransaction();
+                      }, 5000); 
+
+                      video.onended = () => {
+                          clearTimeout(fallbackTimeout);
+                          finalizeTransaction();
+                      };
+
+                      saveTransaction(currentUser.id, {
+                          type: 'payment',
+                          amount: currentAmount,
+                          date: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                          timestamp: Date.now()
+                      });
+                  }
+              }
 
           } else {
+              const banner = document.getElementById('pin-warning-banner');
+              if(banner && !banner.classList.contains('hidden')) {
+                  banner.classList.add('animate-pulse');
+              } else {
+                   // Shake dots if banner hidden
+                   const dots = document.querySelectorAll('.pin-dot-container');
+                   dots.forEach(d => d.classList.add('animate-bounce'));
+                   setTimeout(() => dots.forEach(d => d.classList.remove('animate-bounce')), 300);
+              }
+
               setTimeout(() => {
                   currentPin = '';
                   updatePinDots();
+                  if(banner) banner.classList.remove('animate-pulse');
               }, 200);
           }
       }
@@ -1580,7 +2013,6 @@
           renderChatHistory();
       }
 
-      // Message Logic
       window.sendMessage = function() {
           const input = document.getElementById('message-input');
           const txt = input.value.trim();
@@ -1594,6 +2026,212 @@
           
           input.value = '';
           renderChatHistory();
+      }
+
+      // Transaction History Screen Logic
+      window.openTransactionHistory = function() {
+          renderGlobalHistory();
+          historyScreen.classList.remove('hidden');
+          historyScreen.classList.add('flex');
+      }
+
+      window.closeTransactionHistory = function() {
+          historyScreen.classList.add('hidden');
+          historyScreen.classList.remove('flex');
+      }
+
+      function renderGlobalHistory() {
+          const container = document.getElementById('global-history-list');
+          container.innerHTML = '';
+          
+          let globalHistory = localStorage.getItem('gpay_global_history') 
+              ? JSON.parse(localStorage.getItem('gpay_global_history'))
+              : [];
+          
+          if(globalHistory.length === 0) {
+              container.innerHTML = `<div class="p-4 text-center text-gray-400">No transactions yet</div>`;
+              return;
+          }
+
+          globalHistory.forEach(tx => {
+              const div = document.createElement('div');
+              div.className = "flex items-center justify-between py-4 px-4 cursor-pointer active:bg-[#1f1f1f] border-b border-[#1f1f1f]";
+              
+              let iconHtml = '';
+              if(tx.img) {
+                  iconHtml = `<img src="${tx.img}" class="w-full h-full object-cover">`;
+              } else {
+                  iconHtml = `<div class="w-full h-full flex items-center justify-center text-sm font-medium ${tx.color}">${tx.initial}</div>`;
+              }
+
+              let statusColor = 'text-white';
+              let amountText = `₹${tx.amount}`;
+              
+              if (tx.type === 'payment_failed') {
+                  statusColor = 'text-red-500';
+                  amountText = `Failed`;
+              }
+
+              div.innerHTML = `
+                <div class="flex items-center gap-4">
+                  <div class="w-10 h-10 rounded-full flex-shrink-0 overflow-hidden bg-gray-700">
+                    ${iconHtml}
+                  </div>
+                  <div class="flex flex-col">
+                    <span class="text-[15px] font-medium text-white">${tx.name}</span>
+                    <span class="text-xs text-gray-400">10 December</span> 
+                  </div>
+                </div>
+                <div class="text-[15px] font-medium ${statusColor}">
+                   ${amountText === 'Failed' ? 'Failed' : amountText}
+                </div>
+              `;
+              container.appendChild(div);
+          });
+      }
+
+      // Profile Screen Logic
+      window.openProfileScreen = function() {
+          profileScreen.classList.remove('hidden');
+          profileScreen.classList.add('flex');
+      }
+
+      window.closeProfileScreen = function() {
+          profileScreen.classList.add('hidden');
+          profileScreen.classList.remove('flex');
+      }
+
+      // New Modal Logic
+      let currentModalCallback = null;
+
+      window.openSheet = function(id) {
+          const el = document.getElementById(id);
+          const content = el.querySelector('div:last-child'); // The bottom sheet content
+          el.classList.remove('hidden');
+          el.classList.add('flex');
+          
+          // Reset classes
+          content.classList.remove('animate-slide-down');
+          content.classList.add('animate-slide-up');
+          content.classList.remove('translate-y-full'); // Ensure it's visible (animation handles move)
+      }
+
+      window.closeSheet = function(id) {
+          const el = document.getElementById(id);
+          const content = el.querySelector('div:last-child');
+          
+          content.classList.remove('animate-slide-up');
+          content.classList.add('animate-slide-down');
+          
+          setTimeout(() => {
+              el.classList.add('hidden');
+              el.classList.remove('flex');
+              content.classList.remove('animate-slide-down');
+              content.classList.add('translate-y-full'); // Reset position
+          }, 280);
+      }
+
+      // Help Options
+      window.openHelpOptions = () => openSheet('help-options-sheet');
+      window.closeHelpOptions = () => closeSheet('help-options-sheet');
+
+      // Generic Modal Logic
+      window.showModal = function(config) {
+          const modal = document.getElementById('generic-modal');
+          const title = document.getElementById('modal-title');
+          const desc = document.getElementById('modal-desc');
+          const icon = document.getElementById('modal-icon');
+          const iconContainer = document.getElementById('modal-icon-container');
+          const primaryBtn = document.getElementById('modal-primary-btn');
+
+          title.textContent = config.title;
+          desc.textContent = config.desc;
+          
+          // Icon Styling
+          if(config.type === 'danger') {
+              iconContainer.className = "w-16 h-16 rounded-full bg-red-900/20 flex items-center justify-center mb-4";
+              icon.innerHTML = '<path d="M3 6h18"></path><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>'; // Simple trash SVG or use Lucide if available
+              icon.setAttribute('class', "w-8 h-8 text-red-400"); // Reset class
+              if(window.lucide) lucide.createIcons(); // Re-render if using library
+              
+              primaryBtn.className = "w-full bg-[#f28b82] text-[#3c0e0b] font-medium text-base py-3.5 rounded-full hover:bg-[#e0756c] transition-colors";
+              primaryBtn.textContent = config.btnText || "Delete";
+          } else if (config.type === 'success') {
+              iconContainer.className = "w-16 h-16 rounded-full bg-[#1e8e3e]/20 flex items-center justify-center mb-4";
+              icon.setAttribute('class', "w-8 h-8 text-[#81c995]");
+              // Check icon manually to avoid dependency issues inside innerHTML if possible, or just use lucide names
+              
+              primaryBtn.className = "w-full bg-[#81c995] text-[#0d3b1e] font-medium text-base py-3.5 rounded-full hover:bg-[#6ec284] transition-colors";
+              primaryBtn.textContent = config.btnText || "OK";
+          } else {
+              // Info/Default
+              iconContainer.className = "w-16 h-16 rounded-full bg-blue-900/20 flex items-center justify-center mb-4";
+              icon.setAttribute('class', "w-8 h-8 text-[#a8c7fa]");
+              
+              primaryBtn.className = "w-full bg-[#a8c7fa] text-[#062e6f] font-medium text-base py-3.5 rounded-full hover:bg-[#8ab4f8] transition-colors";
+              primaryBtn.textContent = config.btnText || "OK";
+          }
+          
+          // Re-render icon if name passed
+          if(config.iconName) {
+             icon.setAttribute('data-lucide', config.iconName);
+             lucide.createIcons();
+          }
+
+          primaryBtn.onclick = () => {
+              if (config.onConfirm) config.onConfirm();
+              closeSheet('generic-modal');
+          };
+
+          openSheet('generic-modal');
+      }
+
+      window.closeGenericModal = () => closeSheet('generic-modal');
+
+      // Specific Triggers
+      window.triggerResetAll = function() {
+          closeHelpOptions();
+          setTimeout(() => {
+              showModal({
+                  title: 'Reset Application?',
+                  desc: 'This will permanently delete all transaction history, contacts, and reset settings to default. This action cannot be undone.',
+                  type: 'danger',
+                  iconName: 'trash-2',
+                  btnText: 'Yes, Reset Everything',
+                  onConfirm: () => {
+                      localStorage.clear();
+                      location.reload();
+                  }
+              });
+          }, 300);
+      }
+
+      window.triggerResetBalance = function() {
+          closeHelpOptions();
+          setTimeout(() => {
+              showModal({
+                  title: 'Reset Balance?',
+                  desc: 'Your wallet balance will be restored to the default amount (₹39,525.70). Transaction history will remain.',
+                  type: 'info', // Using info style for less destructive action
+                  iconName: 'rotate-ccw',
+                  btnText: 'Reset Balance',
+                  onConfirm: () => {
+                      localStorage.removeItem('gpay_balance');
+                      walletBalance = 39525.70;
+                      // Show success feedback
+                      setTimeout(() => {
+                          showModal({
+                              title: 'Balance Restored',
+                              desc: 'Your balance has been successfully reset to ₹39,525.70.',
+                              type: 'success',
+                              iconName: 'check-circle',
+                              btnText: 'Done',
+                              onConfirm: null
+                          });
+                      }, 300);
+                  }
+              });
+          }, 300);
       }
     </script>
   </body>
