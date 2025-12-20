@@ -1301,23 +1301,32 @@
     <script>
       lucide.createIcons();
       
-      // Splash Screen Logic (Robust)
-      const hideSplash = () => {
-          const splash = document.getElementById('splash-screen');
-          if (splash && !splash.classList.contains('opacity-0')) {
-             splash.classList.add('opacity-0', 'pointer-events-none');
-             setTimeout(() => {
-                 splash.style.display = 'none';
-             }, 500);
-          }
-      };
+// Splash Screen Logic (Robust)
+const hideSplash = () => {
+    const splash = document.getElementById('splash-screen');
+    if (splash && !splash.classList.contains('opacity-0')) {
+        splash.classList.add('opacity-0', 'pointer-events-none');
+        setTimeout(() => {
+            splash.style.display = 'none';
+        }, 500);
+    }
+};
 
-      if (document.readyState === 'complete') {
+// 🔑 CHECK IF SPLASH SHOULD BE SKIPPED
+const skipSplash = sessionStorage.getItem("skipSplash") === "true";
+
+if (skipSplash) {
+    sessionStorage.removeItem("skipSplash");
+    hideSplash(); // instantly hide
+} else {
+    if (document.readyState === 'complete') {
         setTimeout(hideSplash, 2500);
-      } else {
+    } else {
         window.addEventListener('load', () => setTimeout(hideSplash, 2500));
         setTimeout(hideSplash, 4000); // Fallback
-      }
+    }
+}
+
 
       // State
       let currentAmount = '0';
