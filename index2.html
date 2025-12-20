@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Scanner - RPay</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Google Sans', sans-serif;
+            background-color: #000;
+            margin: 0;
+            overflow: hidden;
+            height: 100vh;
+            color: #fff;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        #qr-reader {
+            width: 100% !important;
+            height: 100% !important;
+            border: none !important;
+            background: #000 !important;
+        }
+        
+
+#qr-reader__scan_region,
+#qr-reader__scan_region * {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+#qr-reader__dashboard,
+#qr-reader__dashboard * {
+  display: none !important;
+}
+
+#qr-reader video{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  transform: scaleX(1) !important;
+  object-fit:cover;
+  clip-path: inset(
+    calc(38% - 140px)
+    calc(50% - 140px)
+    calc(62% - 140px)
+    calc(50% - 140px)
+    round 44px
+  );
+}
+
+
+        .scanner-overlay-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .scanner-frame-container {
+            position: absolute;
+            top: 38%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 280px;
+            height: 280px;
+            pointer-events: none;
+            z-index: 20;
+        }
+
+        .corner {
+            position: absolute;
+            width: 64px;
+            height: 64px;
+        }
+        .corner-tl { top: -4px; left: -4px; border-top: 10px solid #ea4335; border-left: 10px solid #ea4335; border-radius: 44px 0 0 0; }
+        .corner-tr { top: -4px; right: -4px; border-top: 10px solid #f9ab00; border-right: 10px solid #f9ab00; border-radius: 0 44px 0 0; }
+        .corner-bl { bottom: -4px; left: -4px; border-bottom: 10px solid #4285f4; border-left: 10px solid #4285f4; border-radius: 0 0 0 44px; }
+        .corner-br { bottom: -4px; right: -4px; border-bottom: 10px solid #34a853; border-right: 10px solid #34a853; border-radius: 0 0 44px 0; }
+
+        #torch-btn {
+            background-color: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #torch-btn.active {
+            background-color: #ffffff;
+            color: #000;
+        }
+
+        #branding-sheet {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 360px;
+            z-index: 40;
+            background-color: #202124;
+            border-radius: 28px 28px 0 0;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.6);
+            touch-action: none;
+            will-change: transform;
+        }
+    </style>
+</head>
+<body>
+    <div class="fixed top-0 left-0 right-0 z-[60] px-4 py-8 flex items-center justify-between pointer-events-none">
+        <button onclick="window.location.href='index.html'" class="p-2 pointer-events-auto bg-black/30 rounded-full active:scale-90 transition-transform">
+            <i data-lucide="x" class="w-7 h-7 text-white"></i>
+        </button>
+        <div class="flex items-center gap-3 pointer-events-auto">
+            <button id="torch-btn" class="w-11 h-11 rounded-full flex items-center justify-center">
+                <i data-lucide="flashlight" class="w-5 h-5"></i>
+            </button>
+            <button class="p-2.5 bg-black/30 rounded-full"><i data-lucide="qr-code" class="w-5 h-5 text-white"></i></button>
+            <button class="p-2.5 bg-black/30 rounded-full"><i data-lucide="more-vertical" class="w-5 h-5 text-white"></i></button>
+        </div>
+    </div>
+
+    <div id="qr-reader"></div>
+
+    <svg class="scanner-overlay-svg" preserveAspectRatio="none">
+        <defs>
+            <mask id="hole">
+                <rect width="100%" height="100%" fill="white" />
+                <rect x="calc(50% - 140px)" y="calc(38% - 140px)" width="280" height="280" rx="44" fill="black" />
+            </mask>
+        </defs>
+        <rect width="100%" height="100%" fill="rgba(0,0,0,0.65)" mask="url(#hole)" />
+    </svg>
+
+    <div class="absolute inset-0 z-30 pointer-events-none flex flex-col items-center">
+        <div class="scanner-frame-container">
+            <div class="corner corner-tl"></div>
+            <div class="corner corner-tr"></div>
+            <div class="corner corner-bl"></div>
+            <div class="corner corner-br"></div>
+        </div>
+        <div class="absolute top-[58%] pointer-events-auto">
+            <button onclick="document.getElementById('file-input').click()" class="bg-white text-black px-3.5 py-1.5 rounded-full flex items-center gap-2 text-[13px] font-medium shadow-2xl active:scale-95 transition-transform">
+                <i data-lucide="image" class="w-4 h-4"></i> Upload from gallery
+            </button>
+            <input type="file" id="file-input" class="hidden" accept="image/*">
+        </div>
+<!-- Draggable Branding Sheet -->
+<div id="branding-sheet" class="pt-2 pb-5 px-5 pointer-events-auto">
+    <div id="drag-handle" class="w-full py-2 flex flex-col items-center">
+        <div class="w-8 h-0.5 bg-white rounded-full mb-1"></div>
+        <div class="text-center py-4">
+            <h3 class="text-white text-[16px] font-medium leading-tight">
+                Scan any QR code to pay
+            </h3>
+            <p class="text-white/90 text-[14px] leading-tight py-2">
+                Google Pay • PhonePe • PayTM • UPI
+            </p>
+        </div>
+<div class="w-96 h-0.5 bg-gray-300 opacity-20 rounded-full mb-3"></div>
+
+    </div>
+
+    <div class="flex flex-col items-center gap-4 mt-1">
+        <!-- QR Icon -->
+        <div class="w-24 h-24 bg-[#303134] rounded-full flex items-center justify-center border border-white/5">
+            <div class="w-14 h-16 bg-[#f1f3f4] rounded-lg border-2 border-[#3c4043] flex items-center justify-center">
+                <i data-lucide="qr-code" class="w-8 h-8 text-black"></i>
+            </div>
+        </div>
+
+        <!-- Text -->
+        <div class="text-center max-w-[85%]">
+            <h4 class="text-white text-[14px] font-medium mb-1 leading-snug">
+                Scan any QR code, not just Google Pay's
+            </h4>
+            <p class="text-white/40 text-[12px] leading-relaxed">
+                Keep the QR clearly inside the frame.
+                <a href="#" class="text-blue-400 font-medium ml-1">See supported codes</a>
+            </p>
+        </div>
+
+        <!-- Logos -->
+        <div class="flex items-center justify-center gap-6 mt-2 opacity-80 grayscale">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/UPI-Logo-vector.svg/1200px-UPI-Logo-vector.svg.png" class="h-3 brightness-200">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Visa_Inc._logo.svg/2560px-Visa_Inc._logo.svg.png" class="h-2.5 brightness-200">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Mastercard-logo.svg/1280px-Mastercard-logo.svg.png" class="h-3 brightness-200">
+        </div>
+    </div>
+</div>
+
+    </div>
+    <div id="result-sheet" class="fixed inset-0 z-[100] hidden flex flex-col justify-end bg-black/80 backdrop-blur-sm">
+        <div id="result-sheet-content" class="bg-[#202124] rounded-t-[40px] p-8 transform translate-y-full transition-transform duration-300">
+            <div class="w-12 h-1 bg-white/20 mx-auto mb-8 rounded-full"></div>
+            <div class="text-center mb-10 px-4">
+                <div class="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-5 border border-green-500/20">
+                    <i data-lucide="check" class="text-green-400 w-8 h-8"></i>
+                </div>
+                <h2 class="text-xl font-medium text-white mb-4">Processing QR...</h2>
+                <div class="bg-[#303134] p-6 rounded-2xl text-left border border-white/5 shadow-inner">
+                    <p id="qr-data" class="text-blue-400 font-mono break-all text-sm font-medium"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        let scanner = null;
+        let isTorchOn = false;
+        const obs = new MutationObserver(() => {
+            const reg = document.getElementById('qr-reader__scan_region');
+            if(reg) [...reg.children].forEach(c => c.tagName !== 'VIDEO' && (c.style.display = 'none'));
+        });
+        obs.observe(document.body, {childList:true, subtree:true});
+
+        async function init() {
+            scanner = new Html5Qrcode("qr-reader");
+            const config = { fps: 24, };
+            
+            await scanner.start(
+                { facingMode: "environment" }, 
+                config, 
+                (text) => {
+                    if (navigator.vibrate) navigator.vibrate(100);
+                    processScan(text);
+                }
+            ).catch(err => console.error("Scanner failed to start", err));
+        }
+
+        function processScan(text) {
+            // Stop scanning
+            if(scanner && scanner.isScanning) {
+                scanner.stop().catch(e => console.error(e));
+            }
+
+            document.getElementById('qr-data').innerText = text;
+            const sheet = document.getElementById('result-sheet');
+            sheet.classList.remove('hidden');
+            sheet.classList.add('flex');
+            setTimeout(() => document.getElementById('result-sheet-content').style.transform = 'translateY(0)', 20);
+
+            // Parse Data
+            let name = "Unknown Merchant";
+            let upiId = text;
+            let bankName = "UPI Bank";
+
+            // Attempt to parse UPI URI
+            if (text.toLowerCase().startsWith("upi://")) {
+                try {
+                    const url = new URL(text);
+                    const params = new URLSearchParams(url.search);
+                    upiId = params.get("pa") || text;
+                    const rawName = params.get("pn");
+                    name = rawName ? decodeURIComponent(rawName) : upiId;
+                    
+                    // Simple logic to extract a "Bank Name" from handle
+                    if(upiId.includes('@')) {
+                        const handle = upiId.split('@')[1];
+                        if(handle.includes('sbi')) bankName = "State Bank of India";
+                        else if(handle.includes('hdfc')) bankName = "HDFC Bank";
+                        else if(handle.includes('icici')) bankName = "ICICI Bank";
+                        else if(handle.includes('axis')) bankName = "Axis Bank";
+                        else if(handle.includes('ok')) bankName = "Google Pay UPI";
+                        else bankName = handle.toUpperCase() + " Bank";
+                    }
+                } catch(e) {
+                    console.error("Error parsing UPI", e);
+                }
+            } else if (text.includes('@')) {
+                // If text looks like an email/vpa
+                upiId = text;
+                name = text.split('@')[0];
+                bankName = text.split('@')[1].toUpperCase();
+            } else {
+                // Fallback for raw text
+                name = "Scanned Contact";
+                upiId = text;
+            }
+
+            // Generate metadata
+            const id = 'user_' + Date.now();
+            const initial = name.charAt(0).toUpperCase();
+            const colors = ['bg-red-600', 'bg-blue-600', 'bg-green-600', 'bg-yellow-600', 'bg-purple-600', 'bg-pink-600', 'bg-indigo-600'];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+
+            const userData = {
+                id: id,
+                name: name,
+                phone: upiId, // Store UPI ID in phone field for display
+                bankName: bankName,
+                initial: initial,
+                color: color,
+                joined: 'Scanned via QR',
+                isScanned: true
+            };
+
+            // Save to localStorage to pass to index.html
+            localStorage.setItem('gpay_scanned_user', JSON.stringify(userData));
+
+            // Redirect after short delay
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1200);
+        }
+
+        document.getElementById('torch-btn').onclick = async (e) => {
+            if(!scanner || !scanner.isScanning) return;
+            try {
+                const track = scanner.getRunningTrack();
+                const capabilities = track.getCapabilities();
+                if(capabilities.torch) {
+                    isTorchOn = !isTorchOn;
+                    await track.applyConstraints({ advanced: [{ torch: isTorchOn }] });
+                    const btn = document.getElementById('torch-btn');
+                    btn.classList.toggle('active', isTorchOn);
+                }
+            } catch (err) {
+                console.warn("Torch not supported or failed", err);
+            }
+        };
+
+        const brandingSheet = document.getElementById('branding-sheet');
+        const SHEET_HEIGHT = 320;
+        const PEEK_HEIGHT = 80;
+        
+        let currentY = SHEET_HEIGHT - PEEK_HEIGHT;
+        let startY = 0, dragStartY = 0, isDragging = false;
+
+        function updateSheetTransform(y) {
+            currentY = Math.max(0, Math.min(y, SHEET_HEIGHT - PEEK_HEIGHT));
+            brandingSheet.style.transform = `translateY(${currentY}px)`;
+        }
+
+        updateSheetTransform(currentY);
+
+        brandingSheet.addEventListener('touchstart', (e) => {
+            dragStartY = e.touches[0].clientY;
+            startY = currentY;
+            isDragging = true;
+            brandingSheet.style.transition = 'none';
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            const delta = e.touches[0].clientY - dragStartY;
+            updateSheetTransform(startY + delta);
+        });
+
+        document.addEventListener('touchend', () => {
+            if (!isDragging) return;
+            isDragging = false;
+            brandingSheet.style.transition = 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)';
+            
+            const snapThreshold = (SHEET_HEIGHT - PEEK_HEIGHT) / 2;
+            if (currentY < snapThreshold) {
+                updateSheetTransform(0); // Fully expanded
+            } else {
+                updateSheetTransform(SHEET_HEIGHT - PEEK_HEIGHT); // Collapsed (peek)
+            }
+        });
+
+document.getElementById('file-input').onchange = async (e) => {
+    if (e.target.files.length === 0) return;
+
+    try {
+        if (scanner && scanner.isScanning) {
+            await scanner.stop();
+        }
+
+        const result = await scanner.scanFile(e.target.files[0], true);
+        processScan(result);
+
+    } catch (err) {
+        console.warn("No QR code found in image", err);
+        alert("No QR code found in the image");
+    }
+};
+
+
+        window.onload = () => setTimeout(init, 500);
+    </script>
+</body>
+</html>
