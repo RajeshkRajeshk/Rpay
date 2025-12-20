@@ -198,7 +198,7 @@
 
     </div>
     <div id="result-sheet" class="fixed inset-0 z-[100] hidden flex flex-col justify-end bg-black/80 backdrop-blur-sm">
-        <div id="result-sheet-content" class="bg-[#202124] rounded-t-[40px] p-8 transform translate-y-full transition-transform duration-300">
+        <div id="result-sheet-content" class="bg-[#202124] hidden rounded-t-[40px] p-8 transform translate-y-full transition-transform duration-300">
             <div class="w-12 h-1 bg-white/20 mx-auto mb-8 rounded-full"></div>
             <div class="text-center mb-10 px-4">
                 <div class="w-16 h-16 bg-green-500/10 rounded-full flex items-center justify-center mx-auto mb-5 border border-green-500/20">
@@ -307,9 +307,10 @@
             localStorage.setItem('gpay_scanned_user', JSON.stringify(userData));
 
             // Redirect after short delay
-            setTimeout(() => {
-                window.location.href = 'index.html';
-            }, 1200);
+setTimeout(() => {
+    sessionStorage.setItem("skipSplash", "true");
+    window.location.href = "index.html#chat-content";
+}, 100);
         }
 
         document.getElementById('torch-btn').onclick = async (e) => {
