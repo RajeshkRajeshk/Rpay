@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
     <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
       body {
@@ -15,7 +16,20 @@
         color: #e8eaed;
         -webkit-tap-highlight-color: transparent;
         user-select: none;
+        overflow-x: hidden; /* Prevent horizontal scroll */
       }
+      
+      /* Global Scrollbar Hiding */
+      html, body {
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* IE and Edge */
+      }
+      
+      html::-webkit-scrollbar, body::-webkit-scrollbar {
+        display: none; /* Chrome, Safari, Opera */
+      }
+
+      /* Utility class for internal scrollable areas */
       .no-scrollbar::-webkit-scrollbar {
         display: none;
       }
@@ -154,11 +168,13 @@
         </div>
         <div class="px-4 flex flex-col gap-6">
           <div class="grid grid-cols-4 gap-y-6 gap-x-2">
-            <div class="flex flex-col items-center gap-2 group cursor-pointer"><a href="https://rajeshkrajeshk.github.io/RKpay/">
+            <!-- QR Code Trigger -->
+            <div class="flex flex-col items-center gap-2 group cursor-pointer">             
+              <a href="index2.html">
               <div class="w-12 h-12 flex items-center justify-center text-[#8ab4f8] -mb-2 transition-transform group-active:scale-95">
                 <img src="1.png" class="w-18 h-18"></img>
-              </div>
-              <span class="text-2xs text-center text-gray-300 w-20 leading-tight font-medium">Scan any QR code</span></a>
+              </div></a>
+              <span class="text-2xs text-center text-gray-300 w-20 leading-tight font-medium">Scan any QR code</span>
             </div>
             <div class="flex flex-col items-center gap-2 group cursor-pointer">
               <div class="w-12 h-12 flex items-center justify-center text-[#8ab4f8] -mb-2 transition-transform group-active:scale-95">
@@ -1241,6 +1257,47 @@
         </div>
     </div>
 
+    <!-- QR Scanner Overlay -->
+    <div id="qr-scanner-overlay" class="fixed inset-0 bg-black z-[120] hidden flex-col">
+        <div class="flex justify-between items-center p-4 z-20 absolute top-0 w-full bg-gradient-to-b from-black/80 to-transparent">
+            <button onclick="closeQRScanner()" class="p-2 rounded-full bg-black/40 text-white backdrop-blur-sm border border-white/10">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+            <span class="text-white font-medium text-lg tracking-wide">Scan QR</span>
+            <div class="w-10"></div>
+        </div>
+        <div id="qr-reader" class="w-full h-full bg-black relative"></div>
+        <div class="absolute bottom-20 left-0 right-0 flex justify-center z-20 pointer-events-none">
+            <div class="bg-black/60 text-white/90 px-6 py-2 rounded-full text-sm backdrop-blur-md border border-white/10">
+                Point camera at a QR code
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Result Sheet -->
+    <div id="qr-result-sheet" class="fixed inset-0 z-[130] hidden flex-col justify-end bg-black/60 transition-opacity">
+        <div class="flex-1" onclick="closeQRResult()"></div>
+        <div class="bg-[#1f1f1f] rounded-t-3xl p-6 w-full text-white shadow-2xl transform transition-transform translate-y-full animate-slide-up">
+            <div class="w-12 h-1.5 bg-gray-600 rounded-full mx-auto mb-6 opacity-50"></div>
+            
+            <div class="flex flex-col items-center mb-8">
+                <div class="w-20 h-20 bg-[#303134] rounded-full flex items-center justify-center mb-4 border border-gray-600">
+                    <i data-lucide="qr-code" class="w-10 h-10 text-[#8ab4f8]"></i>
+                </div>
+                <h3 class="text-xl font-normal text-white mb-2">Scanned Result</h3>
+                <div class="bg-[#303134] px-6 py-3 rounded-xl border border-gray-700 max-w-full">
+                    <p id="qr-scanned-text" class="text-[#8ab4f8] font-mono text-lg break-all text-center">
+                        --
+                    </p>
+                </div>
+            </div>
+
+            <button onclick="closeQRResult()" class="w-full bg-[#8ab4f8] text-[#1f1f1f] font-medium text-lg py-3 rounded-full mb-3 active:scale-95 transition-transform">
+                Done
+            </button>
+        </div>
+    </div>
+
     <script>
       lucide.createIcons();
       
@@ -1268,10 +1325,59 @@
       let currentUser = null;
       let pinMode = 'PAYMENT'; // 'PAYMENT' or 'BALANCE'
       
+      // Mock Data Definition (Default Transaction History)
+      const defaultGlobalHistory = [
+        { name: 'Zomato', date: 'Yesterday, 8:45 PM', amount: '452', initial: 'Z', color: 'bg-red-600', type: 'payment' },
+        { name: 'Ruban Gii', date: 'Yesterday, 6:30 PM', amount: '2,500', img: 'https://picsum.photos/60/60?random=2', type: 'credit' },
+        { name: 'Uber', date: 'Yesterday, 9:15 AM', amount: '349', initial: 'U', color: 'bg-black', type: 'payment' },
+        { name: 'Spotify Premium', date: '25 Dec, 10:00 AM', amount: '119', initial: 'S', color: 'bg-green-500', type: 'payment' },
+        { name: 'Ratnadeep Supermarket', date: '24 Dec, 7:20 PM', amount: '1,840', initial: 'R', color: 'bg-orange-600', type: 'payment' },
+        { name: 'Shell Petrol Pump', date: '24 Dec, 5:10 PM', amount: '2,100', initial: 'S', color: 'bg-yellow-500', type: 'payment' },
+        { name: 'BookMyShow', date: '23 Dec, 11:00 AM', amount: '640', initial: 'B', color: 'bg-red-500', type: 'payment' },
+        { name: 'Jio Prepaid', date: '22 Dec, 4:20 PM', amount: '749', initial: 'J', color: 'bg-blue-600', type: 'payment' },
+        { name: 'Syed', date: '21 Dec, 1:00 PM', amount: '150', img: 'https://picsum.photos/60/60?random=1', type: 'payment' },
+        { name: 'Saravanan M', date: '20 Dec, 8:30 PM', amount: '2,000', initial: 'S', color: 'bg-[#00b0ff]', type: 'payment' },
+        { name: 'Netflix', date: '19 Dec, 11:00 AM', amount: '649', initial: 'N', color: 'bg-red-600', type: 'payment' },
+        { name: 'Zerodha', date: '18 Dec, 10:30 AM', amount: '5,000', initial: 'Z', color: 'bg-blue-500', type: 'payment' },
+        { name: 'Swiggy Instamart', date: '17 Dec, 6:15 PM', amount: '230', initial: 'S', color: 'bg-orange-500', type: 'payment' },
+        { name: 'ACT Fibernet', date: '16 Dec, 9:00 AM', amount: '1,100', initial: 'A', color: 'bg-green-600', type: 'payment' },
+        { name: 'Amazon India', date: '15 Dec, 2:30 PM', amount: '4,599', initial: 'A', color: 'bg-slate-800', type: 'payment' },
+        { name: 'Dominos Pizza', date: '14 Dec, 8:00 PM', amount: '850', initial: 'D', color: 'bg-blue-700', type: 'payment' },
+        
+        // Expanded List
+        { name: 'Bescom Electricity', date: '12 Dec, 10:00 AM', amount: '1,450', initial: 'B', color: 'bg-yellow-600', type: 'payment' },
+        { name: 'Rapido', date: '11 Dec, 6:30 PM', amount: '85', initial: 'R', color: 'bg-yellow-400', type: 'payment' },
+        { name: 'BigBasket', date: '10 Dec, 7:15 AM', amount: '1,240', initial: 'B', color: 'bg-green-700', type: 'payment' },
+        { name: 'Urban Company', date: '09 Dec, 2:00 PM', amount: '499', initial: 'U', color: 'bg-black', type: 'payment' },
+        { name: 'Decathlon', date: '08 Dec, 5:45 PM', amount: '2,999', initial: 'D', color: 'bg-blue-500', type: 'payment' },
+        { name: 'KFC', date: '07 Dec, 8:15 PM', amount: '650', initial: 'K', color: 'bg-red-700', type: 'payment' },
+        { name: 'Ajio', date: '06 Dec, 11:30 AM', amount: '1,899', initial: 'A', color: 'bg-gray-800', type: 'payment' },
+        { name: 'Apollo Pharmacy', date: '05 Dec, 9:20 AM', amount: '340', initial: 'A', color: 'bg-orange-400', type: 'payment' },
+        { name: 'Hotstar Subscription', date: '04 Dec, 3:00 PM', amount: '1,499', initial: 'H', color: 'bg-blue-900', type: 'payment' },
+        { name: 'Uber Auto', date: '04 Dec, 9:00 AM', amount: '120', initial: 'U', color: 'bg-black', type: 'payment' },
+        { name: 'Milk Basket', date: '03 Dec, 6:00 AM', amount: '2,000', initial: 'M', color: 'bg-purple-500', type: 'payment' },
+        { name: 'Tata Play DTH', date: '02 Dec, 12:00 PM', amount: '450', initial: 'T', color: 'bg-pink-600', type: 'payment' },
+        { name: 'PVR Cinemas', date: '01 Dec, 7:00 PM', amount: '980', initial: 'P', color: 'bg-yellow-500', type: 'payment' },
+        { name: 'Starbucks', date: '30 Nov, 4:30 PM', amount: '750', initial: 'S', color: 'bg-green-800', type: 'payment' },
+        { name: 'Rent Transfer', date: '30 Nov, 10:00 AM', amount: '18,500', initial: 'R', color: 'bg-gray-600', type: 'payment' },
+        { name: 'IRCTC Booking', date: '28 Nov, 11:15 AM', amount: '2,400', initial: 'I', color: 'bg-blue-600', type: 'payment' }
+      ];
+
+      // Initialization Logic
+      function initializeData() {
+          if(!localStorage.getItem('gpay_global_history')) {
+              localStorage.setItem('gpay_global_history', JSON.stringify(defaultGlobalHistory));
+          }
+          if(!localStorage.getItem('gpay_balance')) {
+              localStorage.setItem('gpay_balance', '39525.70');
+          }
+      }
+      
+      // Run immediately
+      initializeData();
+
       // Initialize Balance
-      let walletBalance = localStorage.getItem('gpay_balance') 
-          ? parseFloat(localStorage.getItem('gpay_balance')) 
-          : 39525.70;
+      let walletBalance = parseFloat(localStorage.getItem('gpay_balance'));
 
       let users = {
           'saran': { 
@@ -2077,7 +2183,7 @@
           
           let globalHistory = localStorage.getItem('gpay_global_history') 
               ? JSON.parse(localStorage.getItem('gpay_global_history'))
-              : [];
+              : defaultGlobalHistory;
           
           if(globalHistory.length === 0) {
               container.innerHTML = `<div class="p-4 text-center text-gray-400">No transactions yet</div>`;
@@ -2101,6 +2207,9 @@
               if (tx.type === 'payment_failed') {
                   statusColor = 'text-red-500';
                   amountText = `Failed`;
+              } else if (tx.type === 'credit') {
+                  statusColor = 'text-green-400';
+                  amountText = `+ ₹${tx.amount}`;
               }
 
               div.innerHTML = `
@@ -2110,11 +2219,11 @@
                   </div>
                   <div class="flex flex-col">
                     <span class="text-[15px] font-medium text-white">${tx.name}</span>
-                    <span class="text-xs text-gray-400">10 December</span> 
+                    <span class="text-xs text-gray-400">${tx.date}</span> 
                   </div>
                 </div>
                 <div class="text-[15px] font-medium ${statusColor}">
-                   ${amountText === 'Failed' ? 'Failed' : amountText}
+                   ${amountText}
                 </div>
               `;
               container.appendChild(div);
@@ -2262,6 +2371,84 @@
                       }, 300);
                   }
               });
+          }, 300);
+      }
+
+      // --- QR Code Scanner Logic ---
+      let html5QrCode = null;
+
+      window.openQRScanner = function() {
+          const overlay = document.getElementById('qr-scanner-overlay');
+          overlay.classList.remove('hidden');
+          overlay.classList.add('flex');
+          
+          if (!html5QrCode) {
+              html5QrCode = new Html5Qrcode("qr-reader");
+          }
+          
+          // Use facingMode: "environment" for back camera
+          const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+          html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess)
+          .catch(err => {
+              console.error("Error starting QR scanner", err);
+              // Fallback for demo or desktop if camera fails/permissions denied
+              // alert("Camera access required for QR scanning"); 
+          });
+      }
+
+      window.closeQRScanner = function() {
+          const overlay = document.getElementById('qr-scanner-overlay');
+          if (html5QrCode) {
+              html5QrCode.stop().then(() => {
+                  overlay.classList.add('hidden');
+                  overlay.classList.remove('flex');
+              }).catch(err => {
+                  console.error("Failed to stop qr scanner", err);
+                  overlay.classList.add('hidden');
+                  overlay.classList.remove('flex');
+              });
+          } else {
+              overlay.classList.add('hidden');
+              overlay.classList.remove('flex');
+          }
+      }
+
+      const onScanSuccess = (decodedText, decodedResult) => {
+          // Stop scanning on success
+          if (html5QrCode) {
+              html5QrCode.stop().then(() => {
+                  document.getElementById('qr-scanner-overlay').classList.add('hidden');
+                  document.getElementById('qr-scanner-overlay').classList.remove('flex');
+                  showQRResult(decodedText);
+              }).catch(err => console.error(err));
+          }
+      }
+
+      function showQRResult(text) {
+          const sheet = document.getElementById('qr-result-sheet');
+          const content = sheet.querySelector('div:last-child');
+          const resultText = document.getElementById('qr-scanned-text');
+          
+          resultText.textContent = text;
+          
+          sheet.classList.remove('hidden');
+          sheet.classList.add('flex');
+          content.classList.remove('translate-y-full');
+          content.classList.add('animate-slide-up');
+      }
+
+      window.closeQRResult = function() {
+          const sheet = document.getElementById('qr-result-sheet');
+          const content = sheet.querySelector('div:last-child');
+          
+          content.classList.remove('animate-slide-up');
+          content.classList.add('animate-slide-down');
+          
+          setTimeout(() => {
+              sheet.classList.add('hidden');
+              sheet.classList.remove('flex');
+              content.classList.remove('animate-slide-down');
+              content.classList.add('translate-y-full');
           }, 300);
       }
     </script>
