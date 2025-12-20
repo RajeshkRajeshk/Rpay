@@ -1489,15 +1489,50 @@
 
       // User Order Persistence
       let defaultUserOrder = Object.keys(users);
+      
+      // LOAD CUSTOM USERS
+      const customUsers = localStorage.getItem('gpay_custom_users') ? JSON.parse(localStorage.getItem('gpay_custom_users')) : {};
+      users = { ...users, ...customUsers };
+
       let storedUserOrder = localStorage.getItem('gpay_user_order') 
           ? JSON.parse(localStorage.getItem('gpay_user_order')) 
           : [];
-      defaultUserOrder.forEach(id => {
+      
+      // Ensure all current users are in order
+      const allUserKeys = Object.keys(users);
+      allUserKeys.forEach(id => {
           if(!storedUserOrder.includes(id)) {
               storedUserOrder.push(id);
           }
       });
       let userOrder = storedUserOrder;
+
+      // CHECK FOR SCANNED USER ON INIT
+      const pendingScan = localStorage.getItem('gpay_scanned_user');
+      if (pendingScan) {
+          try {
+              const scannedUser = JSON.parse(pendingScan);
+              // Save to custom users so it persists on reload
+              customUsers[scannedUser.id] = scannedUser;
+              localStorage.setItem('gpay_custom_users', JSON.stringify(customUsers));
+              
+              // Merge into runtime users
+              users[scannedUser.id] = scannedUser;
+              
+              // Update order to top
+              userOrder = userOrder.filter(uid => uid !== scannedUser.id);
+              userOrder.unshift(scannedUser.id);
+              localStorage.setItem('gpay_user_order', JSON.stringify(userOrder));
+              
+              // Clean flag
+              localStorage.removeItem('gpay_scanned_user');
+              
+              // Auto Open Chat
+              setTimeout(() => openChat(scannedUser.id), 300);
+          } catch(e) {
+              console.error("Failed to parse scanned user", e);
+          }
+      }
 
       // Recents Mock Data
       const recents = ['saran', 'jude', 'ruban', 'syed'];
