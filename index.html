@@ -18,7 +18,16 @@
         user-select: none;
         overflow-x: hidden; /* Prevent horizontal scroll */
       }
-      
+*::-webkit-scrollbar {
+  display: none !important;
+  width: 0px;
+  background: transparent; 
+}
+
+* {
+  -ms-overflow-style: none !important;  /* IE and Edge */
+  scrollbar-width: none !important;  /* Firefox */
+}
       /* Global Scrollbar Hiding */
       html, body {
         scrollbar-width: none; /* Firefox */
