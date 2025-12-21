@@ -235,83 +235,97 @@
                 }
             ).catch(err => console.error("Scanner failed to start", err));
         }
+// -------------------- UPI MASTER DATA --------------------
+const UPI_PROFILES = {
+    "sivaprincess4sri2005@oksbi": {
+        phone: "+91 9345870893",
+        joined: "Joined May 2023",
+        bankingName: "Smt Sivasri Palaniyappan",
+        profileImage: "c1.png"
+    }
+    // 👉 Future UPI IDs go here
+};
 
-        function processScan(text) {
-            // Stop scanning
-            if(scanner && scanner.isScanning) {
-                scanner.stop().catch(e => console.error(e));
-            }
+// -------------------- HELPERS --------------------
+function generateRandomPhone() {
+    const starters = ['9', '8', '7'];
+    let number = starters[Math.floor(Math.random() * starters.length)];
+    for (let i = 0; i < 9; i++) {
+        number += Math.floor(Math.random() * 10);
+    }
+    return "+91 " + number;
+}
 
-            document.getElementById('qr-data').innerText = text;
-            const sheet = document.getElementById('result-sheet');
-            sheet.classList.remove('hidden');
-            sheet.classList.add('flex');
-            setTimeout(() => document.getElementById('result-sheet-content').style.transform = 'translateY(0)', 20);
+function extractPhoneFromText(text) {
+    const match = text.match(/(\+91[\s-]?)?[6-9]\d{9}/);
+    return match ? match[0] : null;
+}
 
-            // Parse Data
-            let name = "Unknown Merchant";
-            let upiId = text;
-            let bankName = "UPI Bank";
+function processScan(text) {
+    if (scanner && scanner.isScanning) {
+        scanner.stop().catch(e => console.error(e));
+    }
 
-            // Attempt to parse UPI URI
-            if (text.toLowerCase().startsWith("upi://")) {
-                try {
-                    const url = new URL(text);
-                    const params = new URLSearchParams(url.search);
-                    upiId = params.get("pa") || text;
-                    const rawName = params.get("pn");
-                    name = rawName ? decodeURIComponent(rawName) : upiId;
-                    
-                    // Simple logic to extract a "Bank Name" from handle
-                    if(upiId.includes('@')) {
-                        const handle = upiId.split('@')[1];
-                        if(handle.includes('sbi')) bankName = "State Bank of India";
-                        else if(handle.includes('hdfc')) bankName = "HDFC Bank";
-                        else if(handle.includes('icici')) bankName = "ICICI Bank";
-                        else if(handle.includes('axis')) bankName = "Axis Bank";
-                        else if(handle.includes('ok')) bankName = "Google Pay UPI";
-                        else bankName = handle.toUpperCase() + " Bank";
-                    }
-                } catch(e) {
-                    console.error("Error parsing UPI", e);
-                }
-            } else if (text.includes('@')) {
-                // If text looks like an email/vpa
-                upiId = text;
-                name = text.split('@')[0];
-                bankName = text.split('@')[1].toUpperCase();
-            } else {
-                // Fallback for raw text
-                name = "Scanned Contact";
-                upiId = text;
-            }
+    document.getElementById('qr-data').innerText = text;
 
-            // Generate metadata
-            const id = 'user_' + Date.now();
-            const initial = name.charAt(0).toUpperCase();
-            const colors = ['bg-red-600', 'bg-blue-600', 'bg-green-600', 'bg-yellow-600', 'bg-purple-600', 'bg-pink-600', 'bg-indigo-600'];
-            const color = colors[Math.floor(Math.random() * colors.length)];
+    const sheet = document.getElementById('result-sheet');
+    sheet.classList.remove('hidden');
+    sheet.classList.add('flex');
+    setTimeout(() => {
+        document.getElementById('result-sheet-content').style.transform = 'translateY(0)';
+    }, 20);
 
-            const userData = {
-                id: id,
-                name: name,
-                phone: upiId, // Store UPI ID in phone field for display
-                bankName: bankName,
-                initial: initial,
-                color: color,
-                joined: 'Scanned via QR',
-                isScanned: true
-            };
+    let upiId = text;
+    let name = "Unknown Merchant";
+    let bankingName = "UPI User";
+    let joined = "Scanned via QR";
+    let profileImage = "default.png"; // fallback image
 
-            // Save to localStorage to pass to index.html
-            localStorage.setItem('gpay_scanned_user', JSON.stringify(userData));
-
-            // Redirect after short delay
-setTimeout(() => {
-    sessionStorage.setItem("skipSplash", "true");
-    window.location.href = "index.html#chat-content";
-}, 100);
+    // --------- Parse UPI ----------
+    if (text.toLowerCase().startsWith("upi://")) {
+        try {
+            const url = new URL(text);
+            const params = new URLSearchParams(url.search);
+            upiId = params.get("pa") || text;
+            name = params.get("pn") ? decodeURIComponent(params.get("pn")) : upiId;
+        } catch (e) {
+            console.error(e);
         }
+    }
+
+    // --------- PHONE LOGIC ----------
+    let phone = extractPhoneFromText(text) || generateRandomPhone();
+
+    // --------- SPECIAL UPI OVERRIDES ----------
+    if (UPI_PROFILES[upiId]) {
+        const profile = UPI_PROFILES[upiId];
+        phone = profile.phone;
+        joined = profile.joined;
+        bankingName = profile.bankingName;
+        profileImage = profile.profileImage;
+        name = profile.bankingName;
+    }
+
+    // --------- USER OBJECT ----------
+    const userData = {
+        id: "user_" + Date.now(),
+        name: name,
+        phone: phone,                // ✅ phone number only
+        bankingName: bankingName,    // ✅ renamed
+        profileImage: profileImage,  // ✅ image instead of color
+        joined: joined,
+        upiId: upiId,
+        isScanned: true
+    };
+
+    localStorage.setItem("gpay_scanned_user", JSON.stringify(userData));
+
+    setTimeout(() => {
+        sessionStorage.setItem("skipSplash", "true");
+        window.location.href = "index.html#chat-content";
+    }, 100);
+}
+
 
         document.getElementById('torch-btn').onclick = async (e) => {
             if(!scanner || !scanner.isScanning) return;
