@@ -235,35 +235,33 @@
                 }
             ).catch(err => console.error("Scanner failed to start", err));
         }
-// -------------------- UPI MASTER DATA --------------------
+// ---------------- UPI PROFILE DATABASE ----------------
 const UPI_PROFILES = {
     "sivaprincess4sri2005@oksbi": {
         phone: "+91 9345870893",
-        joined: "Joined May 2023",
         bankingName: "Smt Sivasri Palaniyappan",
-        profileImage: "c1.png"
+        profileImage: "c1.png",
+        joined: "Joined May 2023"
     }
-    // 👉 Future UPI IDs go here
 };
 
-// -------------------- HELPERS --------------------
+// ---------------- HELPERS ----------------
 function generateRandomPhone() {
     const starters = ['9', '8', '7'];
-    let number = starters[Math.floor(Math.random() * starters.length)];
-    for (let i = 0; i < 9; i++) {
-        number += Math.floor(Math.random() * 10);
-    }
-    return "+91 " + number;
+    let num = starters[Math.floor(Math.random() * starters.length)];
+    for (let i = 0; i < 9; i++) num += Math.floor(Math.random() * 10);
+    return "+91 " + num;
 }
 
-function extractPhoneFromText(text) {
+function extractPhone(text) {
     const match = text.match(/(\+91[\s-]?)?[6-9]\d{9}/);
     return match ? match[0] : null;
 }
 
+
 function processScan(text) {
     if (scanner && scanner.isScanning) {
-        scanner.stop().catch(e => console.error(e));
+        scanner.stop().catch(() => {});
     }
 
     document.getElementById('qr-data').innerText = text;
@@ -276,45 +274,51 @@ function processScan(text) {
     }, 20);
 
     let upiId = text;
-    let name = "Unknown Merchant";
-    let bankingName = "UPI User";
+    let username = "Unknown User";
+    let bankingName = "UPI Account";
+    let profileImage = "default.png";
     let joined = "Scanned via QR";
-    let profileImage = "default.png"; // fallback image
 
-    // --------- Parse UPI ----------
+    // -------- Parse QR --------
     if (text.toLowerCase().startsWith("upi://")) {
         try {
             const url = new URL(text);
             const params = new URLSearchParams(url.search);
             upiId = params.get("pa") || text;
-            name = params.get("pn") ? decodeURIComponent(params.get("pn")) : upiId;
-        } catch (e) {
-            console.error(e);
-        }
+
+            const pn = params.get("pn");
+            if (pn) {
+                username = decodeURIComponent(pn);
+            } else if (upiId.includes("@")) {
+                username = upiId.split("@")[0];
+            }
+        } catch {}
+    } else if (text.includes("@")) {
+        upiId = text;
+        username = text.split("@")[0];
     }
 
-    // --------- PHONE LOGIC ----------
-    let phone = extractPhoneFromText(text) || generateRandomPhone();
+    // -------- Phone Logic --------
+    let phone = extractPhone(text) || generateRandomPhone();
 
-    // --------- SPECIAL UPI OVERRIDES ----------
+    // -------- UPI OVERRIDES --------
     if (UPI_PROFILES[upiId]) {
         const profile = UPI_PROFILES[upiId];
         phone = profile.phone;
-        joined = profile.joined;
         bankingName = profile.bankingName;
         profileImage = profile.profileImage;
-        name = profile.bankingName;
+        joined = profile.joined;
     }
 
-    // --------- USER OBJECT ----------
+    // -------- Final User Object --------
     const userData = {
         id: "user_" + Date.now(),
-        name: name,
-        phone: phone,                // ✅ phone number only
-        bankingName: bankingName,    // ✅ renamed
-        profileImage: profileImage,  // ✅ image instead of color
-        joined: joined,
+        username: username,          // ✅ FROM QR ONLY
+        bankingName: bankingName,    // ✅ FROM PROFILE MAP
+        phone: phone,                // ✅ ALWAYS PHONE
         upiId: upiId,
+        profileImage: profileImage,
+        joined: joined,
         isScanned: true
     };
 
@@ -325,6 +329,7 @@ function processScan(text) {
         window.location.href = "index.html#chat-content";
     }, 100);
 }
+
 
 
         document.getElementById('torch-btn').onclick = async (e) => {
