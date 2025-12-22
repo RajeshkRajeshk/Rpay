@@ -28,6 +28,46 @@
   -ms-overflow-style: none !important;  /* IE and Edge */
   scrollbar-width: none !important;  /* Firefox */
 }
+
+/* Nuke every part of the scrollbar for all elements */
+*::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: transparent !important;
+  border: none !important;
+}
+
+/* For Firefox & IE/Edge */
+* {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+/* Force-hide any visible scrollbar gutter/track across browsers */
+html, body, * {
+  -ms-overflow-style: none !important; /* IE and Edge */
+  scrollbar-width: none !important; /* Firefox */
+}
+
+/* WebKit browsers */
+html::-webkit-scrollbar, body::-webkit-scrollbar, *::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Ensure tracks/thumbs are transparent and have no borders */
+*::-webkit-scrollbar-track, *::-webkit-scrollbar-thumb {
+  background: transparent !important;
+  border: none !important;
+}
       /* Global Scrollbar Hiding */
       html, body {
         scrollbar-width: none; /* Firefox */
@@ -148,7 +188,7 @@
         </div>
     </div>
     <div id="home-screen" class="max-w-md mx-auto min-h-screen bg-[#121212] pb-24 overflow-x-hidden relative shadow-2xl transition-transform duration-300">
-      <div class="sticky top-0 z-50 bg-[#222327] pt-10 pb-2 px-5 flex items-center justify-between gap-4 transition-colors duration-300 border-b border-transparent">
+  <div class="sticky top-0 z-50 bg-[#222327] pt-10 pb-2 px-5 flex items-center justify-between gap-4 transition-colors duration-300 border-b border-transparent">
           <div id="home-search-trigger" class="flex-1 relative group h-12 z-50 cursor-text" onclick="openSearchScreen()">
           <div class="absolute inset-0 bg-[#303134] rounded-full shadow-[0_2px_5px_rgba(0,0,0,0.4)] pointer-events-none transition-shadow group-hover:shadow-[0_4px_8px_rgba(0,0,0,0.5)]"></div>
           
@@ -293,7 +333,7 @@
 <div class="space-y-5 mb-6">
   <div class="flex items-center justify-between">
     <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-full overflow-hidden bg-white flex items-center justify-center">
+            <div class="w-14 h-14 rounded-full overflow-hidden bg-white flex items-center justify-center">
         <img
           src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Airtel_logo-01.png/1202px-Airtel_logo-01.png?20220907143534"
           class="w-full h-full object-cover"
@@ -317,7 +357,7 @@
   </div>
   <div class="flex items-center justify-between">
     <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-full overflow-hidden bg-white flex items-center justify-center">
+            <div class="w-14 h-14 rounded-full overflow-hidden bg-white flex items-center justify-center">
         <img
           src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bf/Reliance_Jio_Logo.svg/500px-Reliance_Jio_Logo.svg.png"
           class="w-full h-full object-contain"
@@ -595,8 +635,8 @@
                </div>
 
                <input id="main-search-input" type="text"
-                      class="block w-full h-12 pl-12 pr-4 rounded-full bg-transparent text-[#e8eaed] caret-[#8ab4f8] focus:outline-none text-[15px] font-normal relative z-20"
-                      autocomplete="off">
+                 class="block w-full h-14 pl-14 pr-4 rounded-full bg-transparent text-[#e8eaed] caret-[#8ab4f8] focus:outline-none text-[17px] font-normal relative z-20"
+                 autocomplete="off">
             </div>
 
             <button class="p-2 -mr-2 rounded-full hover:bg-[#303134]">
@@ -609,26 +649,25 @@
             <h3 class="text-lg text-white font-medium mb-4">Suggested categories</h3>
             <div class="flex justify-between mb-8 px-2">
                 <div class="flex flex-col items-center gap-2">
-                    <div class="w-12 h-12 rounded-full bg-[#1f7ae0] flex items-center justify-center">
-                        <i data-lucide="smartphone" class="w-6 h-6 text-white"></i>
-                    </div>
+                       <div class="w-14 h-14 rounded-full bg-[#004a77] flex items-center justify-center">
+                      <img src="8.png" class="w-14 h-14 rounded-full" ></img>
+                        </div>
                     <span class="text-xs text-center text-[#e8eaed] w-16 leading-tight">Mobile recharge</span>
                 </div>
                 <div class="flex flex-col items-center gap-2">
-                    <div class="w-12 h-12 rounded-full bg-[#1f7ae0] flex items-center justify-center">
-                        <i data-lucide="monitor" class="w-6 h-6 text-white"></i>
-                    </div>
+                    <div class="w-14 h-14 rounded-full bg-[#004a77] flex items-center justify-center">
+                   <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#CCDAF5"><path d="M320-120v-80H160q-33 0-56.5-23.5T80-280v-480q0-33 23.5-56.5T160-840h640q33 0 56.5 23.5T880-760v480q0 33-23.5 56.5T800-200H640v80H320ZM160-280h640v-480H160v480Zm0 0v-480 480Z"></path></svg>                    </div>
                     <span class="text-xs text-center text-[#e8eaed] w-16 leading-tight">DTH / Cable TV</span>
                 </div>
                 <div class="flex flex-col items-center gap-2">
-                    <div class="w-12 h-12 rounded-full bg-[#1f7ae0] flex items-center justify-center">
-                        <i data-lucide="lightbulb" class="w-6 h-6 text-white"></i>
-                    </div>
+                    <div class="w-14 h-14 rounded-full bg-[#004a77] flex items-center justify-center">
+<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#CCDAF5"><path d="M480-80q-26 0-47-12.5T400-126q-33 0-56.5-23.5T320-206v-142q-59-39-94.5-103T190-590q0-121 84.5-205.5T480-880q121 0 205.5 84.5T770-590q0 77-35.5 140T640-348v142q0 33-23.5 56.5T560-126q-12 21-33 33.5T480-80Zm-80-126h160v-36H400v36Zm0-76h160v-38H400v38Zm-8-118h58v-108l-88-88 42-42 76 76 76-76 42 42-88 88v108h58q54-26 88-76.5T690-590q0-88-61-149t-149-61q-88 0-149 61t-61 149q0 63 34 113.5t88 76.5Zm88-162Zm0-38Z"/></svg>
+                     </div>
                     <span class="text-xs text-center text-[#e8eaed] w-16 leading-tight">Electricity</span>
                 </div>
                 <div class="flex flex-col items-center gap-2">
-                    <div class="w-12 h-12 rounded-full bg-[#1f7ae0] flex items-center justify-center">
-                        <i data-lucide="credit-card" class="w-6 h-6 text-white"></i>
+                    <div class="w-12 h-12 rounded-full bg-[#004a77] flex items-center justify-center">
+                        <i data-lucide="credit-card" class="w-4 h-4 text-white"></i>
                     </div>
                     <span class="text-xs text-center text-[#e8eaed] w-16 leading-tight">Credit cards</span>
                 </div>
@@ -662,12 +701,12 @@
           <button id="back-btn" class="p-2 rounded-full hover:bg-[#1f1f1f] text-white">
             <i data-lucide="arrow-left" class="w-6 h-6"></i>
           </button>
-          <div id="chat-header-avatar" class="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center">
+          <div id="chat-header-avatar" class="w-14 h-14 rounded-full overflow-hidden flex items-center justify-center">
             <!-- Img or text injected here -->
           </div>
           <div class="flex flex-col">
-            <span id="chat-user-name" class="text-white font-medium text-[15px] leading-tight"></span>
-            <span id="chat-user-phone" class="text-[#9aa0a6] text-xs"></span>
+            <span id="chat-user-name" class="text-white font-medium text-xl leading-tight"></span>
+            <span id="chat-user-phone" class="text-[#9aa0a6] text-sm"></span>
           </div>
         </div>
         <div class="flex items-center gap-4 pr-2">
@@ -680,16 +719,16 @@
       <div class="flex-1 overflow-y-auto px-4 py-4 flex flex-col items-center" id="chat-content">
         <!-- Profile Banner (Shown if no transactions) -->
         <div id="profile-view" class="w-full flex flex-col items-center mt-8">
-           <div id="profile-avatar-lg" class="w-24 h-24 rounded-full flex items-center justify-center text-4xl text-white mb-4"></div>
-           <h2 id="profile-name-lg" class="text-2xl text-white font-normal mb-1"></h2>
+            <div id="profile-avatar-lg" class="w-28 h-28 rounded-full flex items-center justify-center text-5xl text-white mb-4"></div>
+            <h2 id="profile-name-lg" class="text-3xl text-white font-normal mb-1"></h2>
            
-           <div class="flex items-center gap-1.5 mb-2">
+            <div class="flex items-center gap-1.5 mb-2">
               <i data-lucide="shield-check" class="w-4 h-4 text-white fill-white/20"></i>
-              <span id="profile-banking-name" class="text-[13px] text-[#e8eaed] font-medium"></span>
-           </div>
+              <span id="profile-banking-name" class="text-[15px] text-[#e8eaed] font-medium"></span>
+            </div>
            
-           <div id="profile-phone-lg" class="text-[#9aa0a6] text-[13px] mb-1"></div>
-           <div id="profile-join-date" class="text-[#9aa0a6] text-[13px] mb-8"></div>
+            <div id="profile-phone-lg" class="text-[#9aa0a6] text-[15px] mb-1"></div>
+            <div id="profile-join-date" class="text-[#9aa0a6] text-[15px] mb-8"></div>
            
            <button onclick="sayHello()" class="bg-[#1f1f1f] border border-[#5f6368] rounded-full px-4 py-1.5 text-sm text-[#8ab4f8] font-medium flex items-center gap-2 active:bg-[#303134]">
              Say "Hello!" <span class="text-lg">👋</span>
@@ -1663,21 +1702,21 @@ if (skipSplash) {
       function createUserListItem(user) {
           let avatarHtml = '';
           if(user.img) {
-              avatarHtml = `<img src="${user.img}" class="w-full h-full object-cover">`;
+            avatarHtml = `<img src="${user.img}" class="w-full h-full object-cover">`;
           } else {
-              avatarHtml = `<div class="w-full h-full flex items-center justify-center text-white font-medium ${user.color || 'bg-blue-600'}">${user.initial || user.name[0]}</div>`;
+            avatarHtml = `<div class="w-full h-full flex items-center justify-center text-white font-medium ${user.color || 'bg-blue-600'} text-2xl">${user.initial || user.name[0]}</div>`;
           }
 
           return `
-            <div class="flex items-center gap-4 py-3 cursor-pointer hover:bg-[#1f1f1f] rounded-lg px-2 -mx-2" onclick="openChat('${user.id}')">
-                <div class="w-10 h-10 rounded-full overflow-hidden">
-                    ${avatarHtml}
-                </div>
-                <div class="flex flex-col">
-                    <span class="text-[#e8eaed] text-[15px] font-medium">${user.name}</span>
-                    <span class="text-[#9aa0a6] text-xs">${user.phone}</span>
-                </div>
+          <div class="flex items-center gap-4 py-3 cursor-pointer hover:bg-[#1f1f1f] rounded-lg px-2 -mx-2" onclick="openChat('${user.id}')">
+            <div class="w-12 h-12 rounded-full overflow-hidden">
+              ${avatarHtml}
             </div>
+            <div class="flex flex-col">
+              <span class="text-[#e8eaed] text-lg font-medium">${user.name}</span>
+              <span class="text-[#9aa0a6] text-sm">${user.phone}</span>
+            </div>
+          </div>
           `;
       }
 
@@ -1774,12 +1813,12 @@ if (skipSplash) {
           document.getElementById('chat-user-phone').textContent = currentUser.phone;
           
           const avatarContainer = document.getElementById('chat-header-avatar');
-          if(currentUser.img) {
+            if(currentUser.img) {
               avatarContainer.innerHTML = `<img src="${currentUser.img}" class="w-full h-full object-cover">`;
-          } else {
-              avatarContainer.className = `w-10 h-10 rounded-full flex items-center justify-center text-white font-medium ${currentUser.color || 'bg-blue-600'}`;
+            } else {
+              avatarContainer.className = `w-14 h-14 rounded-full flex items-center justify-center text-white font-medium ${currentUser.color || 'bg-blue-600'}`;
               avatarContainer.innerHTML = currentUser.initial || currentUser.name[0];
-          }
+            }
 
           document.getElementById('profile-name-lg').textContent = currentUser.name;
           document.getElementById('profile-banking-name').textContent = `Banking name: ${currentUser.bankName}`;
@@ -1787,13 +1826,13 @@ if (skipSplash) {
           document.getElementById('profile-join-date').textContent = currentUser.joined;
           
           const lgAvatar = document.getElementById('profile-avatar-lg');
-          if(currentUser.img) {
+            if(currentUser.img) {
               lgAvatar.innerHTML = `<img src="${currentUser.img}" class="w-full h-full object-cover rounded-full">`;
-              lgAvatar.className = "w-24 h-24 rounded-full mb-4";
-          } else {
-              lgAvatar.className = `w-24 h-24 rounded-full flex items-center justify-center text-4xl text-white mb-4 ${currentUser.color || 'bg-blue-600'}`;
+              lgAvatar.className = "w-28 h-28 rounded-full mb-4";
+            } else {
+              lgAvatar.className = `w-28 h-28 rounded-full flex items-center justify-center text-5xl text-white mb-4 ${currentUser.color || 'bg-blue-600'}`;
               lgAvatar.textContent = currentUser.initial || currentUser.name[0];
-          }
+            }
 
           renderChatHistory();
 
@@ -1837,17 +1876,17 @@ if (skipSplash) {
                   
                   if(tx.type === 'payment') {
                       debitCount++;
-                      el.innerHTML = `
+                        el.innerHTML = `
                          <div class="bg-[#303134] rounded-2xl p-4 mb-1">
-                             <p class="text-white text-sm font-medium mb-1">Payment to ${currentUser.name.split(' ')[0]}</p>
-                             <div class="text-3xl text-white font-normal mb-2">₹${tx.amount}</div>
-                             <div class="flex items-center gap-1.5">
-                                 <div class="bg-green-500 rounded-full p-0.5"><i data-lucide="check" class="w-3 h-3 text-black stroke-[3]"></i></div>
-                                 <span class="text-xs text-white">Paid • ${tx.date}</span>
-                                 <i data-lucide="chevron-right" class="w-4 h-4 text-gray-500 ml-auto"></i>
-                             </div>
+                           <p class="text-white text-base font-medium mb-1">Payment to ${currentUser.name.split(' ')[0]}</p>
+                           <div class="text-4xl text-white font-normal mb-2">₹${tx.amount}</div>
+                           <div class="flex items-center gap-1.5">
+                             <div class="bg-green-500 rounded-full p-0.5"><i data-lucide="check" class="w-3 h-3 text-black stroke-[3]"></i></div>
+                             <span class="text-sm text-white">Paid • ${tx.date}</span>
+                             <i data-lucide="chevron-right" class="w-4 h-4 text-gray-500 ml-auto"></i>
+                           </div>
                          </div>
-                      `;
+                        `;
                       list.appendChild(el);
                       if(debitCount % 2 === 0) {
                           const scratchEl = document.createElement('div');
@@ -1855,7 +1894,7 @@ if (skipSplash) {
                           scratchEl.onclick = openRewardsScreen;
                           scratchEl.innerHTML = `
                             <div class="bg-[#303134] rounded-2xl p-4 relative overflow-hidden mb-1">
-                                <h3 class="text-white text-sm font-medium mb-3">You earned a scratch card!</h3>
+                                <h3 class="text-white text-base font-medium mb-3">You earned a scratch card!</h3>
                                 <div class="h-28 bg-[#303134] rounded-xl relative overflow-hidden flex items-center justify-center border border-[#5f6368]">
                                     <div class="w-4/5 h-4/5 bg-[#4285f4] rounded-lg relative overflow-hidden flex items-center justify-center transform rotate-[-5deg] shadow-lg">
                                        <div class="absolute inset-0 opacity-20 reward-pattern"></div>
@@ -1865,7 +1904,7 @@ if (skipSplash) {
                                     </div>
                                 </div>
                                 <div class="flex items-center justify-between mt-3 pt-2 border-t border-[#5f6368]/50">
-                                <span class="text-xs text-white font-medium">Tap to view</span>
+                                <span class="text-sm text-white font-medium">Tap to view</span>
                                 <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
                                 </div>
                             </div>
@@ -1874,29 +1913,29 @@ if (skipSplash) {
                       }
                   } else if (tx.type === 'payment_failed') {
                       // Failed Payment UI in Chat
-                       el.innerHTML = `
+                         el.innerHTML = `
                          <div class="bg-[#1f1f1f] rounded-2xl p-4 mb-1">
-                             <p class="text-white text-sm font-medium mb-1">Payment to ${currentUser.name.split(' ')[0]}</p>
-                             <div class="text-3xl text-white font-normal mb-2">₹${tx.amount}</div>
-                             <div class="flex items-center gap-1.5 mb-2">
-                                 <div class="bg-red-500/20 rounded-full p-0.5"><i data-lucide="circle-alert" class="w-3.5 h-3.5 text-red-500"></i></div>
-                                 <span class="text-xs text-white">Failed • ${tx.date}</span>
-                                 <i data-lucide="chevron-right" class="w-4 h-4 text-gray-500 ml-auto"></i>
-                             </div>
-                             <div class="border-t border-dashed border-gray-600 pt-2 mt-2">
-                                <p class="text-[11px] text-gray-400 mb-2">Payment failed - Insufficient bank balance</p>
-                                <button onclick="checkBalance()" class="text-[#8ab4f8] text-sm font-medium">Check balance</button>
-                             </div>
+                           <p class="text-white text-base font-medium mb-1">Payment to ${currentUser.name.split(' ')[0]}</p>
+                           <div class="text-4xl text-white font-normal mb-2">₹${tx.amount}</div>
+                           <div class="flex items-center gap-1.5 mb-2">
+                             <div class="bg-red-500/20 rounded-full p-0.5"><i data-lucide="circle-alert" class="w-3.5 h-3.5 text-red-500"></i></div>
+                             <span class="text-sm text-white">Failed • ${tx.date}</span>
+                             <i data-lucide="chevron-right" class="w-4 h-4 text-gray-500 ml-auto"></i>
+                           </div>
+                           <div class="border-t border-dashed border-gray-600 pt-2 mt-2">
+                            <p class="text-sm text-gray-400 mb-2">Payment failed - Insufficient bank balance</p>
+                            <button onclick="checkBalance()" class="text-[#8ab4f8] text-sm font-medium">Check balance</button>
+                           </div>
                          </div>
-                      `;
+                        `;
                       list.appendChild(el);
                   } else if (tx.type === 'message') {
-                      el.innerHTML = `
-                         <div class="bg-[#303134] rounded-2xl px-4 py-2 mb-1 text-white text-sm">
-                            ${tx.content}
+                       el.innerHTML = `
+                         <div class="bg-[#303134] rounded-2xl px-4 py-2 mb-1 text-white text-base">
+                           ${tx.content}
                          </div>
-                         <div class="text-[10px] text-gray-400 text-right pr-2">${tx.date}</div>
-                      `;
+                         <div class="text-xs text-gray-400 text-right pr-2">${tx.date}</div>
+                       `;
                       list.appendChild(el);
                   }
               });
@@ -2248,11 +2287,11 @@ if (skipSplash) {
               div.className = "flex items-center justify-between py-4 px-4 cursor-pointer active:bg-[#1f1f1f] border-b border-[#1f1f1f]";
               
               let iconHtml = '';
-              if(tx.img) {
+                if(tx.img) {
                   iconHtml = `<img src="${tx.img}" class="w-full h-full object-cover">`;
-              } else {
-                  iconHtml = `<div class="w-full h-full flex items-center justify-center text-sm font-medium ${tx.color}">${tx.initial}</div>`;
-              }
+                } else {
+                  iconHtml = `<div class="w-full h-full flex items-center justify-center text-base font-medium ${tx.color}">${tx.initial}</div>`;
+                }
 
               let statusColor = 'text-white';
               let amountText = `₹${tx.amount}`;
@@ -2267,15 +2306,15 @@ if (skipSplash) {
 
               div.innerHTML = `
                 <div class="flex items-center gap-4">
-                  <div class="w-10 h-10 rounded-full flex-shrink-0 overflow-hidden bg-gray-700">
+                  <div class="w-12 h-12 rounded-full flex-shrink-0 overflow-hidden bg-gray-700">
                     ${iconHtml}
                   </div>
                   <div class="flex flex-col">
-                    <span class="text-[15px] font-medium text-white">${tx.name}</span>
-                    <span class="text-xs text-gray-400">${tx.date}</span> 
+                    <span class="text-lg font-medium text-white">${tx.name}</span>
+                    <span class="text-sm text-gray-400">${tx.date}</span> 
                   </div>
                 </div>
-                <div class="text-[15px] font-medium ${statusColor}">
+                <div class="text-lg font-medium ${statusColor}">
                    ${amountText}
                 </div>
               `;
