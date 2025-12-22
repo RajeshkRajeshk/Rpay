@@ -17,6 +17,18 @@
         -webkit-tap-highlight-color: transparent;
         user-select: none;
         overflow-x: hidden; /* Prevent horizontal scroll */
+        overflow-y: auto; /* Allow vertical scroll */
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* IE and Edge */
+      }
+      html {
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none; /* IE and Edge */
+      }
+      html::-webkit-scrollbar, body::-webkit-scrollbar {
+        display: none;
+        width: 0;
+        height: 0;
       }
 *::-webkit-scrollbar {
   display: none !important;
@@ -166,6 +178,26 @@ html::-webkit-scrollbar, body::-webkit-scrollbar, *::-webkit-scrollbar {
       .reward-pattern {
         background-image: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
         background-size: 10px 10px;
+      }
+      /* Ultimate scrollbar hiding - override everything */
+      html, body, div, section, main, aside, nav, header, footer {
+        scrollbar-width: none !important;
+        -ms-overflow-style: none !important;
+      }
+      html::-webkit-scrollbar, body::-webkit-scrollbar, div::-webkit-scrollbar, section::-webkit-scrollbar, main::-webkit-scrollbar, aside::-webkit-scrollbar, nav::-webkit-scrollbar, header::-webkit-scrollbar, footer::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+        background: transparent !important;
+      }
+      ::-webkit-scrollbar {
+        display: none !important;
+        width: 0 !important;
+        height: 0 !important;
+      }
+      ::-webkit-scrollbar-track, ::-webkit-scrollbar-thumb {
+        background: transparent !important;
+        border: none !important;
       }
     </style>
   <script type="importmap">
@@ -701,7 +733,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar, *::-webkit-scrollbar {
           <button id="back-btn" class="p-2 rounded-full hover:bg-[#1f1f1f] text-white">
             <i data-lucide="arrow-left" class="w-6 h-6"></i>
           </button>
-          <div id="chat-header-avatar" class="w-14 h-14 rounded-full overflow-hidden flex items-center justify-center">
+          <div id="chat-header-avatar" class="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center">
             <!-- Img or text injected here -->
           </div>
           <div class="flex flex-col">
@@ -1024,7 +1056,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar, *::-webkit-scrollbar {
             </button>
             <div class="flex-1 bg-[#202124] rounded-full h-11 flex items-center px-4">
                <i data-lucide="search" class="w-5 h-5 text-gray-400 mr-3"></i>
-               <span class="text-gray-400 text-[15px]">Search transactions</span>
+               <input type="text" id="transaction-search" placeholder="Search transactions" class="bg-transparent text-white text-[15px] flex-1 outline-none" oninput="filterTransactions()">
             </div>
              <button class="p-2 rounded-full hover:bg-[#1f1f1f]">
                 <i data-lucide="more-vertical" class="w-5 h-5 text-white"></i>
@@ -1770,25 +1802,27 @@ if (skipSplash) {
           txs.push(tx);
           localStorage.setItem(`gpay_tx_${userId}`, JSON.stringify(txs));
           
-          // Also Save to Global History
-          let globalHistory = localStorage.getItem('gpay_global_history') 
-              ? JSON.parse(localStorage.getItem('gpay_global_history'))
-              : [];
-          
-          const userName = users[userId]?.name || 'Unknown';
-          const userImg = users[userId]?.img || null;
-          const userInitial = users[userId]?.initial || 'U';
-          const userColor = users[userId]?.color || 'bg-blue-600';
-          
-          globalHistory.unshift({
-              ...tx,
-              name: userName,
-              img: userImg,
-              initial: userInitial,
-              color: userColor,
-              userId: userId
-          });
-          localStorage.setItem('gpay_global_history', JSON.stringify(globalHistory));
+          // Also Save to Global History (only for payments, not messages)
+          if (tx.type !== 'message') {
+              let globalHistory = localStorage.getItem('gpay_global_history') 
+                  ? JSON.parse(localStorage.getItem('gpay_global_history'))
+                  : [];
+              
+              const userName = users[userId]?.name || 'Unknown';
+              const userImg = users[userId]?.img || null;
+              const userInitial = users[userId]?.initial || 'U';
+              const userColor = users[userId]?.color || 'bg-blue-600';
+              
+              globalHistory.unshift({
+                  ...tx,
+                  name: userName,
+                  img: userImg,
+                  initial: userInitial,
+                  color: userColor,
+                  userId: userId
+              });
+              localStorage.setItem('gpay_global_history', JSON.stringify(globalHistory));
+          }
       }
 
       // DOM Elements
@@ -1816,7 +1850,7 @@ if (skipSplash) {
             if(currentUser.img) {
               avatarContainer.innerHTML = `<img src="${currentUser.img}" class="w-full h-full object-cover">`;
             } else {
-              avatarContainer.className = `w-14 h-14 rounded-full flex items-center justify-center text-white font-medium ${currentUser.color || 'bg-blue-600'}`;
+              avatarContainer.className = `w-10 h-10 rounded-full flex items-center justify-center text-white font-medium ${currentUser.color || 'bg-blue-600'}`;
               avatarContainer.innerHTML = currentUser.initial || currentUser.name[0];
             }
 
@@ -2269,13 +2303,24 @@ if (skipSplash) {
           historyScreen.classList.remove('flex');
       }
 
-      function renderGlobalHistory() {
+      window.filterTransactions = function() {
+          const searchInput = document.getElementById('transaction-search');
+          renderGlobalHistory(searchInput.value);
+      }
+
+      function renderGlobalHistory(filter = '') {
           const container = document.getElementById('global-history-list');
           container.innerHTML = '';
           
           let globalHistory = localStorage.getItem('gpay_global_history') 
               ? JSON.parse(localStorage.getItem('gpay_global_history'))
               : defaultGlobalHistory;
+          
+          if(filter) {
+              globalHistory = globalHistory.filter(tx => 
+                  tx.name.toLowerCase().includes(filter.toLowerCase())
+              );
+          }
           
           if(globalHistory.length === 0) {
               container.innerHTML = `<div class="p-4 text-center text-gray-400">No transactions yet</div>`;
@@ -2302,6 +2347,8 @@ if (skipSplash) {
               } else if (tx.type === 'credit') {
                   statusColor = 'text-green-400';
                   amountText = `+ ₹${tx.amount}`;
+              } else if (tx.type === 'message') {
+                  amountText = 'undefined';
               }
 
               div.innerHTML = `
